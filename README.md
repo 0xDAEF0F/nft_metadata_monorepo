@@ -23,7 +23,7 @@ We build in public and welcome contributions from the community.
   - [ ] smart contract templates
   - [ ] tests for smart contracts
   - [ ] deployment scripts on multiple networks
-- [ ] nestjs for server API
+- [x] nestjs for server API
   - [ ] private key management
   - [ ] asset uploading service
 - [ ] smart contracts event tracking service/listener (the graph or custom)
