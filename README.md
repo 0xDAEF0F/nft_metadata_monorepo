@@ -19,12 +19,19 @@ We build in public and welcome contributions from the community.
 
 ## Packages To Create (NX Monorepo Orchestrator)
 
-- [ ] foundry as a blockchain toolkit
-  - [ ] smart contract templates
-  - [ ] tests for smart contracts
-  - [ ] deployment scripts on multiple networks
+- [x] foundry as a blockchain toolkit
+  - [ ] ERC-721 and ERC-1155 templates from solmate
+  - [ ] deployment scripts for multiple networks
 - [x] nestjs for server API
   - [ ] private key management
   - [ ] asset uploading service
 - [ ] smart contracts event tracking service/listener (the graph or custom)
 - [ ] after API is complete: Unity SDK
+
+## Scripts
+
+To clone the monorepo: `git clone git@github.com:reliksdao/monorepo.git <name-you-want> --recurse-submodules`
+
+To run a script in a package: `npx nx <script-name> <package-name>`
+
+**Happy Hacking!**
