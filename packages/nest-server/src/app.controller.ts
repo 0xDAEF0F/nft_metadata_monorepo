@@ -1,12 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get } from '@nestjs/common'
+import { CryptoService } from './crypto/crypto.service'
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly cryptoService: CryptoService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('new-wallet')
+  newWallet() {
+    const wallet = this.cryptoService.createEthereumWallet()
+    const privateKey = wallet.privateKey
+    const address = wallet.address
+    return { privateKey, address }
   }
 }
