@@ -13,6 +13,8 @@ contract MyERC1155Test is Test {
     }
 
     function testToken() public {
-        assertEq(myERC1155.balanceOf(address(0xB0B), 1), 1);
+        assertEq(myERC1155.balanceOf(address(0xB0B), 0), 10**18);
+        assertEq(myERC1155.balanceOf(address(0xB0B), 1), 10**27);
+        assertEq(myERC1155.balanceOf(address(0xB0B), 2), 1);
     }
 }
