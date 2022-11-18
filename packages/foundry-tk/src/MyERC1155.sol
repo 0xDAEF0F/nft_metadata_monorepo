@@ -15,6 +15,8 @@ contract MyERC1155 is ERC1155, Owned {
         _mint(msg.sender, THORS_HAMMER, 1, '');
     }
 
+    // TODO: fix me
+    // This function abi encode is not working properly for string concatenation
     function uri(uint256 id) public pure override returns (string memory) {
         return string(abi.encodePacked('https://example.com/', id, '.json'));
     }
