@@ -5,7 +5,8 @@
   "private": true,
   "main": "dist/index",
   "scripts": {
-    "build": "forge build && tsc index.ts --esModuleInterop --resolveJsonModule --outDir dist"
+    "build": "forge build && tsc index.ts --esModuleInterop --resolveJsonModule --outDir dist",
+    "test": "forge test"
   },
   "keywords": [
     "foundry",

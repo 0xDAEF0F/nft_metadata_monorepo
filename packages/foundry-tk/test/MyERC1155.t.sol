@@ -17,4 +17,10 @@ contract MyERC1155Test is Test {
         assertEq(myERC1155.balanceOf(address(0xB0B), 1), 10**27);
         assertEq(myERC1155.balanceOf(address(0xB0B), 2), 1);
     }
+
+    function testRevertWhenTransferingMoreThanBalanceByOverflow() public {
+        vm.prank(address(0xB0B));
+        vm.expectRevert();
+        myERC1155.safeTransferFrom(address(0xB0B), address(0xA11CE), 2, 2, '');
+    }
 }
