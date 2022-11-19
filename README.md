@@ -2,36 +2,29 @@
 
 ## Objective
 
-The objective of this monorepo is to serve as an abstraction layer for game developers
+The objective of this monorepo is to provide an API for game developers
 that want to incorporate into web3 and blockchain technology but do not want to deal with
 all of the intricacies manually (RPCs, contracts, private keys, etc).
 
-We build in public and welcome contributions from the community.
+We build in **public** and welcome contributions from the community.
 
 ## Services To Provide
 
-- Creation of ERC-720, ERC-1155 smart contracts (custom parameters).
-- Metadata, ownership management, and asset management of dynamic NFTs.
-- Event tracking of contracts of interest and always up-to-date blockchain state.
-- Query helpers for blockchain state.
+- Creation, verification, management, and deployments of ERC-720, ERC-1155 collections.
+- Metadata, asset, and minting management of NFTs.
 - Private key management of developer wallets in a trustless manner (sharding).
-- Verification of the deployed contracts (Etherscan).
 
-## Packages To Create (NX Monorepo Orchestrator)
+## Packages (NX Monorepo Orchestrator)
 
-- [x] foundry as a blockchain toolkit
-  - [ ] ERC-721 and ERC-1155 templates from solmate
-  - [ ] deployment scripts for multiple networks
-- [x] nestjs for server API
-  - [ ] private key management
-  - [ ] asset uploading service
-- [ ] smart contracts event tracking service/listener (the graph or custom)
-- [ ] after API is complete: Unity SDK
+Foundry-tk: Toolkit to build smart contracts and tests
+Nestjs: Backend API
 
 ## Scripts
 
-To clone the monorepo: `git clone git@github.com:reliksdao/monorepo.git <name-you-want> --recurse-submodules`
+To clone the monorepo and install submodules:
+`git clone git@github.com:reliksdao/monorepo.git <name-you-want> --recurse-submodules`
 
-To run a script in a package: `npx nx <script-name> <package-name>`
+To run a task in a package (the package must support it):
+`npx nx <script-name> <package-name>` OR `npx nx run <package-name>:<script-name>`
 
 **Happy Hacking!**
