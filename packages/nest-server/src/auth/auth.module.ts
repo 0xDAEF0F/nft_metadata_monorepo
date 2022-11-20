@@ -11,6 +11,7 @@ import { JwtStrategy } from './jwt.strategy'
   imports: [
     UsersModule,
     PassportModule,
+    // TODO: expiration depends on environment
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '1d' },
