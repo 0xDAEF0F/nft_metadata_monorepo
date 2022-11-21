@@ -1,5 +1,15 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common'
 import { AuthService } from './auth/auth.service'
+import { CredentialsDto } from './auth/credentials-dto'
+import { IsUserAvailablePipe } from './auth/is-user-available.pipe'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { LocalAuthGuard } from './auth/local-auth.guard'
 import { CryptoService } from './crypto/crypto.service'
@@ -34,6 +44,12 @@ export class AppController {
   @Post('auth/login')
   async login(@Request() req) {
     return this.authService.login(req.user)
+  }
+
+  @Post('auth/register')
+  @UsePipes(IsUserAvailablePipe)
+  register(@Body() credentials: CredentialsDto) {
+    return this.authService.createUser(credentials)
   }
 
   @UseGuards(JwtAuthGuard)

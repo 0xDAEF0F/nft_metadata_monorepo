@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common'
+import { genSalt } from 'bcryptjs'
+import { scrypt } from 'scrypt-js'
+import * as aesjs from 'aes-js'
 import { ethers } from 'ethers'
 import { abi, bytecode } from 'foundry-tk'
-
 @Injectable()
 export class CryptoService {
   private provider
@@ -18,6 +20,25 @@ export class CryptoService {
     return new ethers.Wallet(
       '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
     )
+  }
+
+  async deriveKeyFromHumanReadablePassword(password: string) {
+    const pass = Buffer.from(password)
+    const salt = Buffer.from(await genSalt())
+    const N = 1024,
+      r = 8,
+      p = 1,
+      dkLen = 32
+    return scrypt(pass, salt, N, r, p, dkLen)
+  }
+
+  async encryptEthPrivateKey(privateKey: string, password: string) {
+    const privateKeyAsBytes = aesjs.utils.utf8.toBytes(privateKey)
+    const dKey = await this.deriveKeyFromHumanReadablePassword(password)
+    const aesCtr = new aesjs.ModeOfOperation.ctr(dKey)
+    const encryptedBytes = aesCtr.encrypt(privateKeyAsBytes)
+    const encryptedHex = aesjs.utils.hex.fromBytes(encryptedBytes)
+    return encryptedHex
   }
 
   createEthereumWallet() {

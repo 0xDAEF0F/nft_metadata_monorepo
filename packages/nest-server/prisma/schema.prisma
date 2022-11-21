@@ -10,8 +10,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
+model DeveloperAccount {
+  id            Int    @id @default(autoincrement())
+  username      String @unique
+  publicAddress String
+  hPassword     String
+  ePrivateKey   String
 }
