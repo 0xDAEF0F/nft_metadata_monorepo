@@ -21,14 +21,6 @@ export class AppController {
     private authService: AuthService,
   ) {}
 
-  @Get('new-wallet')
-  newWallet() {
-    const wallet = this.cryptoService.createEthereumWallet()
-    const privateKey = wallet.privateKey
-    const address = wallet.address
-    return { privateKey, address }
-  }
-
   @Post('create-collection')
   async createCollection() {
     try {
@@ -43,7 +35,7 @@ export class AppController {
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   async login(@Request() req) {
-    return this.authService.login(req.user)
+    return this.authService.loginUser(req.user)
   }
 
   @Post('auth/register')
@@ -52,8 +44,14 @@ export class AppController {
     return this.authService.createUser(credentials)
   }
 
+  @UseGuards(LocalAuthGuard)
+  @Post('auth/eject-pk')
+  eject(@Body() credentials: CredentialsDto) {
+    return this.authService.ejectUser(credentials)
+  }
+
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
+  @Get('auth/whoami')
   getProfile(@Request() req) {
     return req.user
   }

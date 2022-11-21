@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { genSalt } from 'bcryptjs'
 import { scrypt } from 'scrypt-js'
 import * as aesjs from 'aes-js'
 import { ethers } from 'ethers'
@@ -24,7 +23,8 @@ export class CryptoService {
 
   async deriveKeyFromHumanReadablePassword(password: string) {
     const pass = Buffer.from(password)
-    const salt = Buffer.from(await genSalt())
+    // TODO: How to deal with salt?
+    const salt = Buffer.from('salt')
     const N = 1024,
       r = 8,
       p = 1,
@@ -41,8 +41,13 @@ export class CryptoService {
     return encryptedHex
   }
 
-  createEthereumWallet() {
-    return ethers.Wallet.createRandom()
+  async decryptEthPrivateKey(ePrivateKey: string, password: string) {
+    const ePrivateKeyAsBytes = aesjs.utils.hex.toBytes(ePrivateKey)
+    const dKey = await this.deriveKeyFromHumanReadablePassword(password)
+    const aesCtr = new aesjs.ModeOfOperation.ctr(dKey)
+    const decryptedBytes = aesCtr.decrypt(ePrivateKeyAsBytes)
+    const decryptedUtf8 = aesjs.utils.utf8.fromBytes(decryptedBytes)
+    return decryptedUtf8
   }
 
   // Creates a new contract instance of our smart contract

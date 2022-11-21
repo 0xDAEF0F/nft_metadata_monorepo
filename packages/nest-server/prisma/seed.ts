@@ -1,18 +1,8 @@
-import { PrismaClient, DeveloperAccount } from '@prisma/client'
-const db = new PrismaClient()
+// import { PrismaClient } from '@prisma/client'
+// const db = new PrismaClient()
 
-async function seed() {
-  await Promise.all(
-    getTestUsers().map((user) => {
-      return db.developerAccount.create({
-        data: user,
-      })
-    }),
-  )
-}
+// async function seed() {
+//   console.log('Seeding...')
+// }
 
-seed()
-
-function getTestUsers(): DeveloperAccount[] {
-  return []
-}
+// seed()

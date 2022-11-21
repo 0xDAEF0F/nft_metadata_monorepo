@@ -14,7 +14,7 @@ export class IsUserAvailablePipe implements PipeTransform {
   async transform(value: CredentialsDto, metadata: ArgumentMetadata) {
     const { username } = value
 
-    const user = await this.prismaService.developerAccount.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: { username },
       select: { id: true },
     })
