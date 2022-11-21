@@ -1,19 +1,19 @@
 {
-  "name": "foundry-tk",
-  "version": "1.0.0",
-  "description": "",
-  "private": true,
-  "main": "dist/index",
-  "scripts": {
-    "build": "forge build && tsc index.ts --esModuleInterop --resolveJsonModule --outDir dist",
-    "test": "forge test"
-  },
+  "author": "Alex T. <aletapia@proton.me>",
   "keywords": [
     "foundry",
     "smart-contract",
     "ethereum",
     "blockchain"
   ],
-  "author": "Alex T. <aletapia@proton.me>",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "dist/index",
+  "name": "foundry-tk",
+  "private": true,
+  "scripts": {
+    "build": "forge build && tsc index.ts --esModuleInterop --resolveJsonModule --outDir dist",
+    "dev": "anvil",
+    "test": "forge test"
+  },
+  "version": "0.0.1"
 }
