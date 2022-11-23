@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -25,7 +22,6 @@ model Collection {
   id          Int         @id @default(autoincrement())
   name        String      @unique
   deployed    Boolean     @default(false)
-  chain       Chain       @default(Mainnet)
   standard    Standard    @default(ERC1155)
   description String?
   image       String?
@@ -39,7 +35,6 @@ model Collection {
 }
 
 model Nft {
-  id           Int         @id @default(autoincrement())
   tokenId      Int         @unique
   name         String?
   description  String?
@@ -52,36 +47,18 @@ model Nft {
 }
 
 model Attribute {
-  id           Int         @id @default(autoincrement())
-  /// if null, then value becomes generic
+  id           Int        @id @default(autoincrement())
+  /// if traitType is null, then value becomes generic
   traitType    String?
   /// value pair of key traitType
   value        String
-  /// To comply with opensea metadata standards
-  displayType  DisplayType
-  Nft          Nft?        @relation(fields: [nftId], references: [id])
+  Nft          Nft?       @relation(fields: [nftId], references: [tokenId])
   nftId        Int?
-  Collection   Collection  @relation(fields: [collectionId], references: [id])
+  Collection   Collection @relation(fields: [collectionId], references: [id])
   collectionId Int
 }
 
 enum Standard {
   ERC1155
   ERC721
-}
-
-enum DisplayType {
-  Date
-  Number
-  String
-}
-
-enum Chain {
-  Mainnet
-  Goerli
-  Localhost
-  Arbitrum
-  Polygon
-  BSC
-  Optimism
 }

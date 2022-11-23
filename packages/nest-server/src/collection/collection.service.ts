@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma.service'
-import { CollectionDto } from './collection-dto'
+import { CollectionDto, EditCollectionDto } from './collection-dto'
 
 @Injectable()
 export class CollectionService {
@@ -18,5 +18,14 @@ export class CollectionService {
     return createdCollection
   }
 
-  // async updateCollection(collectionDto: CollectionDto, collectionId: number) {}
+  async updateCollection(
+    collectionDto: EditCollectionDto,
+    collectionId: number,
+  ) {
+    const collection = await this.prismaService.collection.update({
+      data: { ...collectionDto },
+      where: { id: collectionId },
+    })
+    return collection
+  }
 }
