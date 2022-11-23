@@ -7,7 +7,7 @@ import { jwtConstants } from './constants'
 import { JwtStrategy } from './jwt.strategy'
 import { PrismaService } from 'src/prisma.service'
 import { CryptoService } from 'src/crypto/crypto.service'
-import { AuthController } from './auth.controller';
+import { AuthController } from './auth.controller'
 
 @Module({
   imports: [
