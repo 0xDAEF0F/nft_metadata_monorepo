@@ -1,11 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common'
+import { UserOwnsCollection } from 'src/attribute/user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { CollectionDto, EditCollectionDto } from './collection-dto'
@@ -28,17 +31,29 @@ export class CollectionController {
     return this.collectionService.createCollection(createCollectionDto, id)
   }
 
-  @Put('edit')
+  @Put('edit/:collectionId')
+  @UseGuards(UserOwnsCollection)
   async editCollection(
-    @User('id') id: number,
+    @Param('collectionId', ParseIntPipe) collectionId: number,
     @Body() editCollectionDto: EditCollectionDto,
   ) {
-    // TODO: add guard to prevent this edge case
-    const { userId } = await this.prismaService.collection.findUniqueOrThrow({
-      where: { id: editCollectionDto.id },
-      select: { userId: true },
+    return this.collectionService.updateCollection(
+      editCollectionDto,
+      collectionId,
+    )
+  }
+
+  @Delete('delete/:collectionId')
+  @UseGuards(UserOwnsCollection)
+  async deleteCollection(@Param('collectionId', ParseIntPipe) id: number) {
+    // 1. delete all related Attributes and NFTs
+    await this.prismaService.collection.update({
+      where: { id },
+      data: { Attribute: { deleteMany: {} }, Nft: { deleteMany: {} } },
     })
-    if (userId !== id) throw new UnauthorizedException()
-    return this.collectionService.updateCollection(editCollectionDto, id)
+    // 2. delete the collection
+    await this.prismaService.collection.delete({ where: { id } })
+
+    return { collectionId: id, success: true }
   }
 }

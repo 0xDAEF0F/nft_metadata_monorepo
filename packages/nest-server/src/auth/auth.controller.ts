@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Request,
   UseGuards,
@@ -19,6 +20,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @HttpCode(200)
   async login(@Request() req) {
     return this.authService.loginUser(req.user)
   }
@@ -31,6 +33,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('eject-pk')
+  @HttpCode(200)
   eject(@Body() credentials: CredentialsDto) {
     return this.authService.ejectUser(credentials)
   }

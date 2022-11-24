@@ -5,7 +5,7 @@ const CreateAttributeSchema = z.object({
   // if this is nullish then it will have a generic value
   traitType: z.string().nullish(),
   value: z.string(),
-  // if you want the attribute to a specific NFT
+  // if you want to link the attribute to a specific NFT
   nftId: z.number().nullish(),
 })
 

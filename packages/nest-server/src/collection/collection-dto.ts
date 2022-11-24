@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod'
-import * as z from 'nestjs-zod/z'
+import { z } from 'nestjs-zod/z'
+import validator from 'validator'
 
 const ErcStandard = {
   ERC1155: 'ERC1155',
@@ -7,18 +8,14 @@ const ErcStandard = {
 } as const
 
 const CreateCollectionSchema = z.object({
-  name: z.string(),
+  name: z.string().min(3),
   description: z.string().optional(),
-  externalUrl: z.string().optional(),
-  image: z.string().optional(),
+  externalUrl: z.string().refine(validator.isURL, 'Invalid Url').optional(),
+  image: z.string().refine(validator.isURL, 'Invalid Url').optional(),
   standard: z.nativeEnum(ErcStandard).optional(),
 })
 
-const EditCollectionSchema = z
-  .object({
-    id: z.number(),
-  })
-  .merge(CreateCollectionSchema.partial())
+const EditCollectionSchema = CreateCollectionSchema.partial()
 
 export class CollectionDto extends createZodDto(CreateCollectionSchema) {}
 export class EditCollectionDto extends createZodDto(EditCollectionSchema) {}

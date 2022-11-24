@@ -53,11 +53,11 @@ export class AuthService {
     return { privateKey, publicAddress: user.publicAddress }
   }
 
-  async validateUser(username: string, pass: string) {
+  async validateCredentials(username: string, password: string) {
     const user = await this.prismaService.user.findUnique({
       where: { username },
     })
-    if (user && compareSync(pass, user.hPassword)) {
+    if (user && compareSync(password, user.hPassword)) {
       const { hPassword, ePrivateKey, ...result } = user
       return result
     }
