@@ -70,4 +70,12 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     }
   }
+
+  async isUserOwnCollection(userId: number, collectionId: number) {
+    const collection = await this.prismaService.collection.findUnique({
+      where: { id: collectionId },
+    })
+    if (!collection || collection.userId !== userId) return false
+    return true
+  }
 }

@@ -6,10 +6,11 @@ import { APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { CollectionService } from './collection/collection.service'
 import { CollectionController } from './collection/collection.controller'
+import { AttributeController } from './attribute/attribute.controller'
 
 @Module({
   imports: [AuthModule],
-  controllers: [CollectionController],
+  controllers: [CollectionController, AttributeController],
   providers: [
     CryptoService,
     PrismaService,
