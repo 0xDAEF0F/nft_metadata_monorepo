@@ -28,8 +28,8 @@ model Collection {
   externalUrl String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  studio      User        @relation(fields: [studioId], references: [id])
-  studioId    Int
+  user        User        @relation(fields: [userId], references: [id])
+  userId      Int
   Nft         Nft[]
   Attribute   Attribute[]
 }

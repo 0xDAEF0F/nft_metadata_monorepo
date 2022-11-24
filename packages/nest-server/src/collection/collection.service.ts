@@ -6,14 +6,14 @@ import { CollectionDto, EditCollectionDto } from './collection-dto'
 export class CollectionService {
   constructor(private prismaService: PrismaService) {}
 
-  async createCollection(collectionDto: CollectionDto, studioId: number) {
+  async createCollection(collectionDto: CollectionDto, userId: number) {
     const isCollectionExists = await this.prismaService.collection.findUnique({
       where: { name: collectionDto.name },
     })
     if (isCollectionExists)
       throw new BadRequestException('collection already exists')
     const createdCollection = await this.prismaService.collection.create({
-      data: { ...collectionDto, studioId },
+      data: { ...collectionDto, userId },
     })
     return createdCollection
   }

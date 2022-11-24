@@ -33,11 +33,12 @@ export class CollectionController {
     @User('id') id: number,
     @Body() editCollectionDto: EditCollectionDto,
   ) {
-    const { studioId } = await this.prismaService.collection.findUniqueOrThrow({
+    // TODO: add guard to prevent this edge case
+    const { userId } = await this.prismaService.collection.findUniqueOrThrow({
       where: { id: editCollectionDto.id },
-      select: { studioId: true },
+      select: { userId: true },
     })
-    if (studioId !== id) throw new UnauthorizedException()
+    if (userId !== id) throw new UnauthorizedException()
     return this.collectionService.updateCollection(editCollectionDto, id)
   }
 }
