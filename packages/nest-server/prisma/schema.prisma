@@ -19,19 +19,18 @@ model User {
 }
 
 model Collection {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique
-  deployed    Boolean     @default(false)
-  standard    Standard    @default(ERC1155)
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  deployed    Boolean  @default(false)
+  standard    Standard @default(ERC1155)
   description String?
   image       String?
   externalUrl String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  user        User        @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
   userId      Int
   Nft         Nft[]
-  Attribute   Attribute[]
 }
 
 model Nft {
@@ -47,15 +46,12 @@ model Nft {
 }
 
 model Attribute {
-  id           Int        @id @default(autoincrement())
-  /// if traitType is null, then value becomes generic
-  traitType    String?
-  /// value pair of key traitType
-  value        String
-  Nft          Nft?       @relation(fields: [nftId], references: [tokenId])
-  nftId        Int?
-  Collection   Collection @relation(fields: [collectionId], references: [id])
-  collectionId Int
+  id         Int    @id @default(autoincrement())
+  trait_type String
+  /// if value is number it will be string-casted
+  value      String
+  Nft        Nft    @relation(fields: [nftId], references: [tokenId])
+  nftId      Int
 }
 
 enum Standard {

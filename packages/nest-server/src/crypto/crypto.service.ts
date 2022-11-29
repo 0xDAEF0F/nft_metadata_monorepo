@@ -23,7 +23,7 @@ export class CryptoService {
 
   async deriveKeyFromHumanReadablePassword(password: string) {
     const pass = Buffer.from(password)
-    // TODO: How to deal with salt?
+    // TODO: Give each user some salt?
     const salt = Buffer.from('salt')
     const N = 1024,
       r = 8,

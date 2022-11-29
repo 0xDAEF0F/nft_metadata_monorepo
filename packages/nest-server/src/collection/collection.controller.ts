@@ -8,7 +8,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common'
-import { UserOwnsCollection } from 'src/attribute/user-owns-collection.guard'
+import { UserOwnsCollection } from './user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { CollectionDto, EditCollectionDto } from './collection-dto'
@@ -49,7 +49,7 @@ export class CollectionController {
     // 1. delete all related Attributes and NFTs
     await this.prismaService.collection.update({
       where: { id },
-      data: { Attribute: { deleteMany: {} }, Nft: { deleteMany: {} } },
+      data: { Nft: { deleteMany: {} } },
     })
     // 2. delete the collection
     await this.prismaService.collection.delete({ where: { id } })
