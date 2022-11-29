@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { Prisma } from '@prisma/client'
 import { parse } from 'csv/sync'
 import { z } from 'nestjs-zod/z'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
@@ -45,7 +46,10 @@ export class NftController {
         )
       },
     })
-    const validatedRecords = z.array(RecordSchema).safeParse(records)
+
+    const validatedRecords = z
+      .array(RecordSchema.passthrough())
+      .safeParse(records)
 
     if (!validatedRecords.success)
       throw new BadRequestException('ids have a non number value')
@@ -68,7 +72,7 @@ export class NftController {
     })
 
     // 2. Create all nfts
-    await this.prismaService.collection.update({
+    const txn = await this.prismaService.collection.update({
       where: { id: collectionId },
       select: { _count: true },
       data: {
@@ -76,13 +80,13 @@ export class NftController {
           createMany: {
             data: validatedTransformRecords.data.map((nft) => ({
               tokenId: nft.id,
-              attributes: nft.attributes,
+              attributes: nft.attributes as Prisma.JsonArray,
             })),
           },
         },
       },
     })
 
-    return { success: true }
+    return txn
   }
 }

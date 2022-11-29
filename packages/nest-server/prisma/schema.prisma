@@ -34,7 +34,7 @@ model Collection {
 }
 
 model Nft {
-  id           Int        @unique @default(autoincrement())
+  id           String     @unique @default(uuid())
   tokenId      Int
   name         String?
   description  String?
