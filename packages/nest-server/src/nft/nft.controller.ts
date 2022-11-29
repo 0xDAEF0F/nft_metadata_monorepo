@@ -7,8 +7,9 @@ import {
   BadRequestException,
   Param,
   ParseIntPipe,
+  UploadedFiles,
 } from '@nestjs/common'
-import { FileInterceptor } from '@nestjs/platform-express'
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
 import { Prisma } from '@prisma/client'
 import { parse } from 'csv/sync'
 import { z } from 'nestjs-zod/z'
@@ -88,5 +89,20 @@ export class NftController {
     })
 
     return txn
+  }
+
+  @Post('batch-create-images/:collectionId')
+  @UseGuards(UserOwnsCollection)
+  @UseInterceptors(FilesInterceptor('assets'))
+  async batchCreateNftImages(
+    @UploadedFiles() assets: Express.Multer.File[],
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+  ) {
+    console.log(
+      'asset names: ',
+      assets.map((a) => a.originalname),
+    )
+    console.log('collectionId for request: ', collectionId)
+    return 'processing images'
   }
 }
