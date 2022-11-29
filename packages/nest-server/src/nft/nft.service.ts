@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import isNumber from 'is-number'
 import validator from 'validator'
-import { ZodValidationException } from 'nestjs-zod'
 import { UtilService } from 'src/util/util.service'
 import {
   NftAfterSanitation,
-  NftAfterSanitationSchema,
   NormalAttribute,
   NumericAttribute,
   RecordDto,
@@ -15,7 +13,7 @@ import {
 export class NftService {
   constructor(private util: UtilService) {}
 
-  transformAndValidateRecords(
+  transformRecordAttributes(
     recordArray: Array<RecordDto>,
   ): Array<NftAfterSanitation> {
     return recordArray.map((record) => {
@@ -25,14 +23,10 @@ export class NftService {
       const normalAttr = this.extractNormalAttributes(allEntriesWithoutId)
       const numericAttr = this.extractNumericAttributes(allEntriesWithoutId)
 
-      const validatedRecords = NftAfterSanitationSchema.safeParse({
-        id: +id,
+      return {
+        id,
         attributes: [...normalAttr, ...numericAttr],
-      })
-
-      if (validatedRecords.success) return validatedRecords.data
-
-      throw new ZodValidationException(validatedRecords.error)
+      }
     })
   }
 

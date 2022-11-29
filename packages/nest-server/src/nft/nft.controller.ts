@@ -5,25 +5,33 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { parse } from 'csv/sync'
 import { z } from 'nestjs-zod/z'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
-import { UtilService } from 'src/util/util.service'
+import { PrismaService } from 'src/prisma.service'
 import { NftService } from './nft.service'
-import { RecordSchema } from './types'
+import { RecordSchema, NftAfterSanitationSchema } from './types'
 
 @Controller('nft')
 @UseGuards(JwtAuthGuard)
 export class NftController {
-  constructor(private nftService: NftService) {}
+  constructor(
+    private nftService: NftService,
+    private prismaService: PrismaService,
+  ) {}
 
   @Post('/batch-create-metadata/:collectionId')
   @UseGuards(UserOwnsCollection)
   @UseInterceptors(FileInterceptor('file'))
-  batchCreateNftsMetadata(@UploadedFile() file: Express.Multer.File) {
+  async batchCreateNftsMetadata(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+  ) {
     const records = parse(file.buffer, {
       columns: (header) => {
         const capitalized = this.nftService.capitalizeHeader(header)
@@ -42,6 +50,39 @@ export class NftController {
     if (!validatedRecords.success)
       throw new BadRequestException('ids have a non number value')
 
-    // now transform the other attributes
+    const transformedRecords = this.nftService.transformRecordAttributes(
+      validatedRecords.data,
+    )
+
+    const validatedTransformRecords = z
+      .array(NftAfterSanitationSchema)
+      .safeParse(transformedRecords)
+
+    if (!validatedTransformRecords.success)
+      throw new BadRequestException('attributes are incorrect')
+
+    // 1. first delete all of the nfts
+    await this.prismaService.collection.update({
+      where: { id: collectionId },
+      data: { Nft: { deleteMany: {} } },
+    })
+
+    // 2. Create all nfts
+    await this.prismaService.collection.update({
+      where: { id: collectionId },
+      select: { _count: true },
+      data: {
+        Nft: {
+          createMany: {
+            data: validatedTransformRecords.data.map((nft) => ({
+              tokenId: nft.id,
+              attributes: nft.attributes,
+            })),
+          },
+        },
+      },
+    })
+
+    return { success: true }
   }
 }

@@ -34,24 +34,16 @@ model Collection {
 }
 
 model Nft {
-  tokenId      Int         @unique
+  id           Int        @unique @default(autoincrement())
+  tokenId      Int
   name         String?
   description  String?
   image        String?
-  attributes   Attribute[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  collection   Collection  @relation(fields: [collectionId], references: [id])
+  attributes   Json?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  collection   Collection @relation(fields: [collectionId], references: [id])
   collectionId Int
-}
-
-model Attribute {
-  id         Int    @id @default(autoincrement())
-  trait_type String
-  /// if value is number it will be string-casted
-  value      String
-  Nft        Nft    @relation(fields: [nftId], references: [tokenId])
-  nftId      Int
 }
 
 enum Standard {
