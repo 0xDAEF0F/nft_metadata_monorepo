@@ -136,13 +136,6 @@ export class NftController {
       },
     )
 
-    // create the tokens that do not exist
-    this.prismaService.nft.createMany({
-      data: newTokenIds.map((id) => ({ collectionId, tokenId: +id })),
-    })
-
-    // here you need to upload the images to aws
-
     return 'processing images'
   }
 }

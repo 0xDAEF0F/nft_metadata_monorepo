@@ -4,6 +4,9 @@ import {
   DeleteObjectsCommand,
   PutObjectCommand,
   PutObjectCommandInput,
+  DeleteObjectCommand,
+  DeleteObjectCommandInput,
+  ListObjectsCommandInput,
 } from '@aws-sdk/client-s3'
 import { Injectable } from '@nestjs/common'
 import { InjectAws } from 'aws-sdk-v3-nest'
@@ -17,14 +20,45 @@ export class S3Service {
     return process.env.AWS_S3_BUCKET_NAME as string
   }
 
-  // need to provide a path (directory for the collectionid/name)
-  uploadObject(object: Express.Multer.File) {
+  uploadObject(key: string, data: Buffer) {
     const uploadParams: PutObjectCommandInput = {
       Bucket: this.getBucketName(),
-      Key: object.originalname,
-      Body: object.buffer,
+      Key: key,
+      Body: data,
     }
     return this.s3.send(new PutObjectCommand(uploadParams))
+  }
+
+  deleteObject(key: string) {
+    const deleteParams: DeleteObjectCommandInput = {
+      Bucket: this.getBucketName(),
+      Key: key,
+    }
+    return this.s3.send(new DeleteObjectCommand(deleteParams))
+  }
+
+  async deleteObjectsFromPrefix(prefix: string) {
+    const bucketParams: ListObjectsCommandInput = {
+      Bucket: this.getBucketName(),
+      Marker: undefined,
+      Prefix: prefix,
+    }
+    while (true) {
+      const objectListing = await this.s3.send(
+        new ListObjectsCommand(bucketParams),
+      )
+      if (!objectListing.Contents) break
+      objectListing.Contents.forEach((obj) => {
+        const key = obj.Key
+        if (!key) return
+        this.deleteObject(key)
+      })
+      if (objectListing.IsTruncated) {
+        bucketParams.Marker = objectListing.Contents.slice(-1)[0].Key
+      } else {
+        break
+      }
+    }
   }
 
   async listAllObjects() {

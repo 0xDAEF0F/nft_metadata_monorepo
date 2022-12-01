@@ -3,15 +3,57 @@ import isNumber from 'is-number'
 import validator from 'validator'
 import { UtilService } from 'src/util/util.service'
 import {
+  NftAssetPayload,
+  AssetUrl,
   NftAfterSanitation,
   NormalAttribute,
   NumericAttribute,
   RecordDto,
 } from './types'
+import { S3Service } from 'src/s3/s3.service'
+import { PrismaService } from 'src/prisma.service'
 
 @Injectable()
 export class NftService {
-  constructor(private util: UtilService) {}
+  constructor(
+    private util: UtilService,
+    private s3: S3Service,
+    private prismaService: PrismaService,
+  ) {}
+
+  async createOrUpdateNftAsset(nftPayload: NftAssetPayload) {
+    const { collectionId, tokenId, data } = nftPayload
+    await this.s3.uploadObject(`${collectionId}/${tokenId}`, data)
+    const {
+      Nft: [token],
+    } = await this.prismaService.collection.findUniqueOrThrow({
+      where: { id: collectionId },
+      select: { Nft: { where: { tokenId } } },
+    })
+    const imageUrl = this.getAwsAssetUrl(collectionId, tokenId)
+    await this.prismaService.nft.upsert({
+      where: { id: token.id },
+      update: { image: imageUrl },
+      create: { tokenId, image: imageUrl, collectionId },
+    })
+    return true
+  }
+
+  deleteNftAssets(collectionId: number, tokenIds: number[]) {
+    return tokenIds.map((tokenId) => {
+      return this.deleteNftAsset(collectionId, tokenId)
+    })
+  }
+
+  deleteNftAsset(collectionId: number, tokenId: number) {
+    const key = `${collectionId}/${tokenId}`
+    return this.s3.deleteObject(key)
+  }
+
+  getAwsAssetUrl(collectionId: number, tokenId: number) {
+    const basePath = `https://${this.s3.getBucketName()}.s3.amazonaws.com`
+    return `${basePath}/${collectionId}/${tokenId}`
+  }
 
   transformRecordAttributes(
     recordArray: Array<RecordDto>,

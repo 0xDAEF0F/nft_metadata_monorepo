@@ -10,6 +10,7 @@
     "@prisma/client": "^4.6.1",
     "@types/lodash": "^4.14.190",
     "aes-js": "^3.1.2",
+    "await-to-js": "^3.0.0",
     "aws-sdk-v3-nest": "^0.1.5",
     "bcryptjs": "^2.4.3",
     "csv": "^6.2.3",
