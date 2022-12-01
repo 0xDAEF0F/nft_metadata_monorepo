@@ -1,8 +1,9 @@
 import {
-  ListBucketsCommand,
   ListObjectsCommand,
   S3Client,
   DeleteObjectsCommand,
+  PutObjectCommand,
+  PutObjectCommandInput,
 } from '@aws-sdk/client-s3'
 import { Injectable } from '@nestjs/common'
 import { InjectAws } from 'aws-sdk-v3-nest'
@@ -16,10 +17,14 @@ export class S3Service {
     return process.env.AWS_S3_BUCKET_NAME as string
   }
 
-  async helloAws() {
-    const listCommand = new ListBucketsCommand({})
-    const res = await this.s3.send(listCommand)
-    return res
+  // need to provide a path (directory for the collectionid/name)
+  uploadObject(object: Express.Multer.File) {
+    const uploadParams: PutObjectCommandInput = {
+      Bucket: this.getBucketName(),
+      Key: object.originalname,
+      Body: object.buffer,
+    }
+    return this.s3.send(new PutObjectCommand(uploadParams))
   }
 
   async listAllObjects() {

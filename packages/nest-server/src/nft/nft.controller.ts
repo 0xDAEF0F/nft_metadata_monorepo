@@ -13,7 +13,7 @@ import {
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express'
 import { Prisma } from '@prisma/client'
 import { parse } from 'csv/sync'
-import { findIndex, partition } from 'lodash'
+import { partition } from 'lodash'
 import { z } from 'nestjs-zod/z'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
@@ -108,8 +108,15 @@ export class NftController {
     assets: Express.Multer.File[],
     @Param('collectionId', ParseIntPipe) collectionId: number,
   ) {
-    const requestAssetIds = assets.map((a) => a.originalname.split('.')[0])
-    if (!this.utilService.isArrayInSequence(requestAssetIds))
+    const requestAssetIds = assets.map((a, idx) => ({
+      tokenId: a.originalname.split('.')[0],
+      idx,
+    }))
+    if (
+      !this.utilService.isArrayInSequence(
+        requestAssetIds.map(({ tokenId }) => tokenId),
+      )
+    )
       throw new BadRequestException('assets are not in sequence')
 
     const collectionNfts = await this.prismaService.nft.findMany({
@@ -128,6 +135,14 @@ export class NftController {
         return itExistsInDb
       },
     )
+
+    // create the tokens that do not exist
+    this.prismaService.nft.createMany({
+      data: newTokenIds.map((id) => ({ collectionId, tokenId: +id })),
+    })
+
+    // here you need to upload the images to aws
+
     return 'processing images'
   }
 }
