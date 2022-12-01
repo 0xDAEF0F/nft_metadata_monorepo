@@ -8,14 +8,16 @@ import {
   Param,
   ParseIntPipe,
   UploadedFiles,
+  ParseFilePipeBuilder,
 } from '@nestjs/common'
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
+import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express'
 import { Prisma } from '@prisma/client'
 import { parse } from 'csv/sync'
 import { z } from 'nestjs-zod/z'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
+import { UtilService } from 'src/util/util.service'
 import { NftService } from './nft.service'
 import { RecordSchema, NftAfterSanitationSchema } from './types'
 
@@ -25,13 +27,19 @@ export class NftController {
   constructor(
     private nftService: NftService,
     private prismaService: PrismaService,
+    private utilService: UtilService,
   ) {}
 
   @Post('/batch-create-metadata/:collectionId')
   @UseGuards(UserOwnsCollection)
   @UseInterceptors(FileInterceptor('file'))
   async batchCreateNftsMetadata(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: 'csv' })
+        .build({ fileIsRequired: true }),
+    )
+    file: Express.Multer.File,
     @Param('collectionId', ParseIntPipe) collectionId: number,
   ) {
     const records = parse(file.buffer, {
@@ -93,16 +101,18 @@ export class NftController {
 
   @Post('batch-create-images/:collectionId')
   @UseGuards(UserOwnsCollection)
-  @UseInterceptors(FilesInterceptor('assets'))
+  @UseInterceptors(AnyFilesInterceptor())
   async batchCreateNftImages(
-    @UploadedFiles() assets: Express.Multer.File[],
+    @UploadedFiles()
+    assets: Express.Multer.File[],
     @Param('collectionId', ParseIntPipe) collectionId: number,
   ) {
-    console.log(
-      'asset names: ',
-      assets.map((a) => a.originalname),
-    )
-    console.log('collectionId for request: ', collectionId)
+    const originalAssetNames = assets.map((a) => a.originalname.split('.')[0])
+    if (!this.utilService.isArrayInSequence(originalAssetNames))
+      throw new BadRequestException('assets are not in sequence')
+    // does the collection already has tokenIds set for this original assetNames?
+    // are the nft already created? (only delete the objects that are already created)
+    // note: bucket dir must match collectionname/id
     return 'processing images'
   }
 }

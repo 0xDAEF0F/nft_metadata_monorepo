@@ -12,6 +12,10 @@ import { chunk } from 'lodash'
 export class S3Service {
   constructor(@InjectAws(S3Client) private readonly s3: S3Client) {}
 
+  getBucketName() {
+    return process.env.AWS_S3_BUCKET_NAME as string
+  }
+
   async helloAws() {
     const listCommand = new ListBucketsCommand({})
     const res = await this.s3.send(listCommand)
@@ -20,7 +24,7 @@ export class S3Service {
 
   async listAllObjects() {
     const bucketParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: this.getBucketName(),
       Marker: undefined,
     }
     const objectKeys: { Key: string }[] = []
@@ -54,7 +58,7 @@ export class S3Service {
     const inChunksOf1000 = chunk(bucketObjectKeys, 1000)
     inChunksOf1000.forEach((chunk) => {
       const command = new DeleteObjectsCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
+        Bucket: this.getBucketName(),
         Delete: { Objects: chunk },
       })
       this.s3.send(command)
