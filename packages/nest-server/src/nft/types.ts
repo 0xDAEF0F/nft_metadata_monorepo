@@ -28,6 +28,7 @@ export type NormalAttribute = z.infer<typeof NormalAttributeSchema>
 export type NumericAttribute = z.infer<typeof NumericAttributeSchema>
 export type AssetUrl = string
 export type NftAssetPayload = {
+  imageName: string
   tokenId: number
   collectionId: number
   data: Buffer

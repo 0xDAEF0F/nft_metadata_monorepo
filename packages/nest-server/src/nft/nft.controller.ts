@@ -12,14 +12,20 @@ import {
 } from '@nestjs/common'
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express'
 import { Prisma } from '@prisma/client'
+import to from 'await-to-js'
 import { parse } from 'csv/sync'
 import { z } from 'nestjs-zod/z'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
 import { UtilService } from 'src/util/util.service'
+import { imageOptions } from './multer-options'
 import { NftService } from './nft.service'
-import { RecordSchema, NftAfterSanitationSchema } from './types'
+import {
+  RecordSchema,
+  NftAfterSanitationSchema,
+  NftAssetPayload,
+} from './types'
 
 @Controller('nft')
 @UseGuards(JwtAuthGuard)
@@ -101,36 +107,29 @@ export class NftController {
 
   @Post('batch-create-images/:collectionId')
   @UseGuards(UserOwnsCollection)
-  @UseInterceptors(AnyFilesInterceptor())
+  @UseInterceptors(AnyFilesInterceptor(imageOptions))
   async batchCreateNftImages(
     @UploadedFiles()
     assets: Express.Multer.File[],
     @Param('collectionId', ParseIntPipe) collectionId: number,
   ) {
-    const requestAssetIds = assets.map((a, idx) => ({
-      tokenId: a.originalname.split('.')[0],
-      idx,
-    }))
-    if (
-      !this.utilService.isArrayInSequence(
-        requestAssetIds.map(({ tokenId }) => tokenId),
-      )
-    )
+    const requestAssetIds = assets.map((a) => a.originalname.split('.')[0])
+    if (!this.utilService.isArrayInSequence(requestAssetIds))
       throw new BadRequestException('assets are not in sequence')
 
-    assets.forEach((asset) => {
-      const tokenId = +asset.originalname.split('.')[0]
-      try {
-        this.nftService.createOrUpdateNftAsset({
-          tokenId,
-          collectionId,
-          data: asset.buffer,
-        })
-      } catch (error) {
-        console.log(error)
+    for (let i = 0; i < assets.length; i++) {
+      const asset: NftAssetPayload = {
+        collectionId: collectionId,
+        data: assets[i].buffer,
+        imageName: assets[i].originalname,
+        tokenId: +assets[i].originalname.split('.')[0],
       }
-    })
+      const [err] = await to(this.nftService.createOrUpdateNftAsset(asset))
+      if (err)
+        console.log(`error uploading image ${asset.imageName}:`, err.message)
+    }
 
+    // this is a blocking response (need to implement interceptor to upload assets)
     return 'processing images'
   }
 }

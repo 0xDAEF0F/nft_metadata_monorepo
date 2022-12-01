@@ -21,15 +21,15 @@ export class NftService {
   ) {}
 
   async createOrUpdateNftAsset(nftPayload: NftAssetPayload) {
-    const { collectionId, tokenId, data } = nftPayload
-    await this.s3.uploadObject(`${collectionId}/${tokenId}`, data)
+    const { collectionId, tokenId, data, imageName } = nftPayload
+    await this.s3.uploadObject(`${collectionId}/${imageName}`, data)
     const {
       Nft: [token],
     } = await this.prismaService.collection.findUniqueOrThrow({
       where: { id: collectionId },
       select: { Nft: { where: { tokenId } } },
     })
-    const imageUrl = this.getAwsAssetUrl(collectionId, tokenId)
+    const imageUrl = this.getAwsAssetUrl(collectionId, imageName)
     await this.prismaService.nft.upsert({
       where: { id: token.id },
       update: { image: imageUrl },
@@ -49,9 +49,9 @@ export class NftService {
     return this.s3.deleteObject(key)
   }
 
-  getAwsAssetUrl(collectionId: number, tokenId: number) {
+  getAwsAssetUrl(collectionId: number, key: string) {
     const basePath = `https://${this.s3.getBucketName()}.s3.amazonaws.com`
-    return `${basePath}/${collectionId}/${tokenId}`
+    return `${basePath}/${collectionId}/${key}`
   }
 
   transformRecordAttributes(

@@ -17,7 +17,7 @@ export class S3Service {
   constructor(@InjectAws(S3Client) private readonly s3: S3Client) {}
 
   getBucketName() {
-    return process.env.AWS_S3_BUCKET_NAME as string
+    return process.env.AWS_BUCKET_NAME as string
   }
 
   uploadObject(key: string, data: Buffer) {
