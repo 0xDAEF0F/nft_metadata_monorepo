@@ -4,7 +4,6 @@ import validator from 'validator'
 import { UtilService } from 'src/util/util.service'
 import {
   NftAssetPayload,
-  AssetUrl,
   NftAfterSanitation,
   NormalAttribute,
   NumericAttribute,

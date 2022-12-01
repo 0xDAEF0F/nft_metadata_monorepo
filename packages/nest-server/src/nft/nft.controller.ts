@@ -13,7 +13,6 @@ import {
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express'
 import { Prisma } from '@prisma/client'
 import { parse } from 'csv/sync'
-import { partition } from 'lodash'
 import { z } from 'nestjs-zod/z'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
@@ -119,22 +118,18 @@ export class NftController {
     )
       throw new BadRequestException('assets are not in sequence')
 
-    const collectionNfts = await this.prismaService.nft.findMany({
-      where: { collectionId },
-      select: { tokenId: true },
+    assets.forEach((asset) => {
+      const tokenId = +asset.originalname.split('.')[0]
+      try {
+        this.nftService.createOrUpdateNftAsset({
+          tokenId,
+          collectionId,
+          data: asset.buffer,
+        })
+      } catch (error) {
+        console.log(error)
+      }
     })
-    // new ones need creation and uploading to aws
-    // duplicate ones need to be deleted from aws and re-uploaded
-    const [duplicateTokenIds, newTokenIds] = partition(
-      requestAssetIds,
-      (currentAssetNft) => {
-        const idxInStore = collectionNfts.findIndex(
-          ({ tokenId }) => tokenId === +currentAssetNft,
-        )
-        const itExistsInDb = idxInStore !== -1
-        return itExistsInDb
-      },
-    )
 
     return 'processing images'
   }
