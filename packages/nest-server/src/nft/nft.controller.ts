@@ -18,6 +18,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
 import { UtilService } from 'src/util/util.service'
+import { AssetFilesGuard } from './asset.files.guard'
 import { imageOptions } from './multer-options'
 import { NftInterceptor } from './nft.interceptor'
 import { NftService } from './nft.service'
@@ -102,16 +103,9 @@ export class NftController {
   }
 
   @Post('batch-create-images/:collectionId')
-  @UseGuards(UserOwnsCollection)
+  @UseGuards(UserOwnsCollection, AssetFilesGuard)
   @UseInterceptors(AnyFilesInterceptor(imageOptions), NftInterceptor)
-  async batchCreateNftImages(
-    @UploadedFiles()
-    assets: Express.Multer.File[],
-  ) {
-    const requestAssetIds = assets.map((a) => a.originalname.split('.')[0])
-    if (!this.utilService.isArrayInSequence(requestAssetIds))
-      throw new BadRequestException('assets are not in sequence')
-
+  batchCreateNftImages() {
     return 'processing images'
   }
 }
