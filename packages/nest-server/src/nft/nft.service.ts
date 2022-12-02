@@ -35,7 +35,6 @@ export class NftService {
       update: { image: imageUrl },
       create: { tokenId, image: imageUrl, collectionId },
     })
-    return true
   }
 
   deleteNftAssets(collectionId: number, tokenIds: number[]) {
