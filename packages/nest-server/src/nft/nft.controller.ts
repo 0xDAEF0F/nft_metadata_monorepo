@@ -7,8 +7,8 @@ import {
   BadRequestException,
   Param,
   ParseIntPipe,
-  UploadedFiles,
   ParseFilePipeBuilder,
+  UploadedFiles,
 } from '@nestjs/common'
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express'
 import { Prisma } from '@prisma/client'
@@ -18,7 +18,6 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
 import { UtilService } from 'src/util/util.service'
-import { AssetFilesGuard } from './asset.files.guard'
 import { imageOptions } from './multer-options'
 import { NftInterceptor } from './nft.interceptor'
 import { NftService } from './nft.service'
@@ -103,9 +102,19 @@ export class NftController {
   }
 
   @Post('batch-create-images/:collectionId')
-  @UseGuards(UserOwnsCollection, AssetFilesGuard)
+  @UseGuards(UserOwnsCollection)
   @UseInterceptors(AnyFilesInterceptor(imageOptions), NftInterceptor)
-  batchCreateNftImages() {
+  batchCreateNftImages(
+    @UploadedFiles()
+    assets: Express.Multer.File[],
+  ) {
+    if (!assets || assets.length === 0)
+      throw new BadRequestException('no images to process')
+
+    const requestAssetIds = assets.map((a) => a.originalname.split('.')[0])
+    if (!this.utilService.isArrayInSequence(requestAssetIds))
+      throw new BadRequestException('assets are not in sequence')
+
     return 'processing images'
   }
 }
