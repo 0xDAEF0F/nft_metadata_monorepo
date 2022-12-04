@@ -2,16 +2,18 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common'
 import { UserOwnsCollection } from './user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
-import { CollectionDto, EditCollectionDto } from './collection-dto'
+import { CollectionDto, EditCollectionDto, QueryDto } from './collection-dto'
 import { CollectionService } from './collection.service'
 import { User } from './user.decorator'
 
@@ -22,6 +24,23 @@ export class CollectionController {
     private collectionService: CollectionService,
     private prismaService: PrismaService,
   ) {}
+
+  @Get(':collectionId')
+  getNfts(
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+    @Query() { take, cursor, sort }: QueryDto,
+  ) {
+    return this.prismaService.nft.findMany({
+      take,
+      skip: cursor ? 1 : 0,
+      cursor: cursor
+        ? {
+            collectionId_tokenId: { collectionId, tokenId: +cursor },
+          }
+        : undefined,
+      orderBy: { tokenId: sort },
+    })
+  }
 
   @Post('create')
   createCollection(

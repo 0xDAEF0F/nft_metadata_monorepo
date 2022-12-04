@@ -34,7 +34,6 @@ model Collection {
 }
 
 model Nft {
-  id           String     @unique @default(uuid())
   tokenId      Int
   name         String?
   description  String?
@@ -44,6 +43,8 @@ model Nft {
   updatedAt    DateTime   @updatedAt
   collection   Collection @relation(fields: [collectionId], references: [id])
   collectionId Int
+
+  @@id([collectionId, tokenId])
 }
 
 enum Standard {

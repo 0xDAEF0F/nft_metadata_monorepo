@@ -7,7 +7,7 @@ import {
 import to from 'await-to-js'
 import { Observable, tap } from 'rxjs'
 import { NftService } from './nft.service'
-import { NftAssetPayload } from './types'
+import { NftImagePayload } from './types'
 
 @Injectable()
 export class NftInterceptor implements NestInterceptor {
@@ -15,13 +15,13 @@ export class NftInterceptor implements NestInterceptor {
 
   async uploadFiles(files: Express.Multer.File[], collectionId: number) {
     for (let i = 0; i < files.length; i++) {
-      const asset: NftAssetPayload = {
+      const asset: NftImagePayload = {
         collectionId: collectionId,
         data: files[i].buffer,
         imageName: files[i].originalname,
         tokenId: +files[i].originalname.split('.')[0],
       }
-      const [err] = await to(this.nftService.createOrUpdateNftAsset(asset))
+      const [err] = await to(this.nftService.createOrUpdateNftImage(asset))
       if (err)
         console.log(`error uploading image ${asset.imageName}:`, err.message)
     }

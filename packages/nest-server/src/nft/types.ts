@@ -26,8 +26,8 @@ export type NftAfterSanitation = z.infer<typeof NftAfterSanitationSchema>
 export type RecordDto = z.infer<typeof RecordSchema>
 export type NormalAttribute = z.infer<typeof NormalAttributeSchema>
 export type NumericAttribute = z.infer<typeof NumericAttributeSchema>
-export type AssetUrl = string
-export type NftAssetPayload = {
+export type ImageUrl = string
+export type NftImagePayload = {
   imageName: string
   tokenId: number
   collectionId: number

@@ -3,7 +3,7 @@ import isNumber from 'is-number'
 import validator from 'validator'
 import { UtilService } from 'src/util/util.service'
 import {
-  NftAssetPayload,
+  NftImagePayload,
   NftAfterSanitation,
   NormalAttribute,
   NumericAttribute,
@@ -20,18 +20,15 @@ export class NftService {
     private prismaService: PrismaService,
   ) {}
 
-  async createOrUpdateNftAsset(nftPayload: NftAssetPayload) {
+  async createOrUpdateNftImage(nftPayload: NftImagePayload) {
     const { collectionId, tokenId, data, imageName } = nftPayload
+
     await this.s3.uploadObject(`${collectionId}/${imageName}`, data)
-    const {
-      Nft: [token],
-    } = await this.prismaService.collection.findUniqueOrThrow({
-      where: { id: collectionId },
-      select: { Nft: { where: { tokenId } } },
-    })
+
     const imageUrl = this.getAwsAssetUrl(collectionId, imageName)
+
     await this.prismaService.nft.upsert({
-      where: { id: token.id },
+      where: { collectionId_tokenId: { collectionId, tokenId } },
       update: { image: imageUrl },
       create: { tokenId, image: imageUrl, collectionId },
     })
