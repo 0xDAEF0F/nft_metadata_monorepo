@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common'
 import to from 'await-to-js'
 import { Observable, tap } from 'rxjs'
-import { NftService } from './nft.service'
+import { ImageService } from './nftImage.service'
 import { NftImagePayload } from './types'
 
 @Injectable()
-export class NftInterceptor implements NestInterceptor {
-  constructor(private nftService: NftService) {}
+export class NftImageInterceptor implements NestInterceptor {
+  constructor(private nftService: ImageService) {}
 
   async uploadFiles(files: Express.Multer.File[], collectionId: number) {
     for (let i = 0; i < files.length; i++) {

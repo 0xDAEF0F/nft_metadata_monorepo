@@ -17,15 +17,23 @@ const NumericAttributeSchema = z.object({
 
 const AttributeSchema = z.union([NormalAttributeSchema, NumericAttributeSchema])
 
-export const NftAfterSanitationSchema = z.object({
+export const PartialNftWithAttributes = z.object({
   id: z.number(),
   attributes: z.array(AttributeSchema),
 })
 
-export type NftAfterSanitation = z.infer<typeof NftAfterSanitationSchema>
-export type RecordDto = z.infer<typeof RecordSchema>
+export type PartialNftWithAttributes = z.infer<typeof PartialNftWithAttributes>
+
 export type NormalAttribute = z.infer<typeof NormalAttributeSchema>
 export type NumericAttribute = z.infer<typeof NumericAttributeSchema>
+
+export enum TypeOfBatchMetadataRequest {
+  creation,
+  updating,
+  both,
+}
+
+// TODO: move this to the image module
 export type ImageUrl = string
 export type NftImagePayload = {
   imageName: string

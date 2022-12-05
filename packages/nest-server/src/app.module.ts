@@ -10,8 +10,11 @@ import { AwsSdkModule } from 'aws-sdk-v3-nest'
 import { S3Client } from '@aws-sdk/client-s3'
 import { AppController } from './app.controller'
 import { S3Service } from './s3/s3.service'
-import { NftService } from './nft/nft.service'
+import { ImageService } from './nftImage/nftImage.service'
 import { UtilService } from './util/util.service'
+import { ImageController } from './nftImage/nftImage.controller'
+import { AttributesService } from './attributes/attributes.service'
+import { AttributesController } from './attributes/attributes.controller'
 import { NftController } from './nft/nft.controller'
 
 @Module({
@@ -27,15 +30,22 @@ import { NftController } from './nft/nft.controller'
     }),
     AuthModule,
   ],
-  controllers: [AppController, CollectionController, NftController],
+  controllers: [
+    AppController,
+    CollectionController,
+    ImageController,
+    AttributesController,
+    NftController,
+  ],
   providers: [
     CryptoService,
     PrismaService,
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     CollectionService,
     S3Service,
-    NftService,
+    ImageService,
     UtilService,
+    AttributesService,
   ],
 })
 export class AppModule {}

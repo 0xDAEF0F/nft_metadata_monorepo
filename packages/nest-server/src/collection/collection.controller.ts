@@ -3,19 +3,23 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Param,
   ParseIntPipe,
   Post,
   Put,
-  Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common'
 import { UserOwnsCollection } from './user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
-import { CollectionDto, EditCollectionDto, QueryDto } from './collection-dto'
+import { CollectionDto, EditCollectionDto } from './collection-dto'
 import { CollectionService } from './collection.service'
 import { User } from './user.decorator'
+import { DeleteCollectionImagesInterceptor } from './delete-collection-images.interceptor'
+import to from 'await-to-js'
+import { CollectionExistsGuard } from './collection-exists.guard'
 
 @Controller('collection')
 @UseGuards(JwtAuthGuard)
@@ -26,19 +30,10 @@ export class CollectionController {
   ) {}
 
   @Get(':collectionId')
-  getNfts(
-    @Param('collectionId', ParseIntPipe) collectionId: number,
-    @Query() { take, cursor, sort }: QueryDto,
-  ) {
-    return this.prismaService.nft.findMany({
-      take,
-      skip: cursor ? 1 : 0,
-      cursor: cursor
-        ? {
-            collectionId_tokenId: { collectionId, tokenId: +cursor },
-          }
-        : undefined,
-      orderBy: { tokenId: sort },
+  @UseGuards(CollectionExistsGuard)
+  getColletionData(@Param('collectionId', ParseIntPipe) collectionId: number) {
+    return this.prismaService.collection.findUnique({
+      where: { id: collectionId },
     })
   }
 
@@ -64,15 +59,22 @@ export class CollectionController {
 
   @Delete('delete/:collectionId')
   @UseGuards(UserOwnsCollection)
-  async deleteCollection(@Param('collectionId', ParseIntPipe) id: number) {
-    // 1. delete all related Attributes and NFTs
-    await this.prismaService.collection.update({
-      where: { id },
-      data: { Nft: { deleteMany: {} } },
+  @UseInterceptors(DeleteCollectionImagesInterceptor)
+  async deleteCollection(
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+  ) {
+    const deleteNfts = this.prismaService.nft.deleteMany({
+      where: { collectionId },
     })
-    // 2. delete the collection
-    await this.prismaService.collection.delete({ where: { id } })
+    const deleteCollection = this.prismaService.collection.delete({
+      where: { id: collectionId },
+    })
 
-    return { collectionId: id, success: true }
+    const [err] = await to(
+      this.prismaService.$transaction([deleteNfts, deleteCollection]),
+    )
+    if (err) throw new InternalServerErrorException()
+
+    return { collectionId: collectionId, success: true }
   }
 }
