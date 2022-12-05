@@ -11,7 +11,7 @@ import { NftImagePayload } from './types'
 
 @Injectable()
 export class NftImageInterceptor implements NestInterceptor {
-  constructor(private nftService: ImageService) {}
+  constructor(private nftImageService: ImageService) {}
 
   async uploadFiles(files: Express.Multer.File[], collectionId: number) {
     for (let i = 0; i < files.length; i++) {
@@ -21,7 +21,7 @@ export class NftImageInterceptor implements NestInterceptor {
         imageName: files[i].originalname,
         tokenId: +files[i].originalname.split('.')[0],
       }
-      const [err] = await to(this.nftService.createOrUpdateNftImage(asset))
+      const [err] = await to(this.nftImageService.createOrUpdateNftImage(asset))
       if (err)
         console.log(`error uploading image ${asset.imageName}:`, err.message)
     }

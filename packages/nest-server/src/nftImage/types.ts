@@ -4,9 +4,3 @@ export type NftImagePayload = {
   collectionId: number
   data: Buffer
 }
-
-export enum TypeOfBatchMetadataRequest {
-  creation,
-  updating,
-  both,
-}

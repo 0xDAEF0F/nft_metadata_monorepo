@@ -32,12 +32,3 @@ export enum TypeOfBatchMetadataRequest {
   updating,
   both,
 }
-
-// TODO: move this to the image module
-export type ImageUrl = string
-export type NftImagePayload = {
-  imageName: string
-  tokenId: number
-  collectionId: number
-  data: Buffer
-}

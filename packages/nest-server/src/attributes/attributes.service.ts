@@ -8,11 +8,9 @@ import {
   RecordSchema,
   NormalAttribute,
   NumericAttribute,
-  TypeOfBatchMetadataRequest,
 } from './types'
 import { z } from 'nestjs-zod/z'
 import { PrismaService } from 'src/prisma.service'
-import { partition } from 'lodash'
 
 @Injectable()
 export class AttributesService {
@@ -34,40 +32,6 @@ export class AttributesService {
         },
       },
       include: { _count: true },
-    })
-  }
-
-  inferTypeOfRequestMetadata([
-    newNfts,
-    duplicateNfts,
-  ]): TypeOfBatchMetadataRequest {
-    const creation = newNfts.length > 0
-    const updating = duplicateNfts.length > 0
-    const both = creation && updating
-
-    if (both) {
-      return TypeOfBatchMetadataRequest.both
-    } else if (updating) {
-      return TypeOfBatchMetadataRequest.updating
-    } else {
-      return TypeOfBatchMetadataRequest.creation
-    }
-  }
-
-  async separateNewFromDuplicates(
-    collectionId: number,
-    nfts: PartialNftWithAttributes[],
-  ) {
-    const nftsInCollection = await this.prismaService.nft.findMany({
-      where: { collectionId },
-      select: { tokenId: true },
-    })
-    return partition(nfts, (currentAssetNft) => {
-      const idxInQuery = nftsInCollection.findIndex(
-        ({ tokenId }) => tokenId === +currentAssetNft,
-      )
-      const nftExists = idxInQuery !== -1
-      return nftExists
     })
   }
 
@@ -168,67 +132,3 @@ export class AttributesService {
     })
   }
 }
-
-// if (whatToDo === TypeOfBatchMetadataRequest.both) {
-//   const txn1 = this.prismaService.collection.update({
-//     where: { id: collectionId },
-//     data: {
-//       Nft: {
-//         update: duplicates.map((a) => ({
-//           where: {
-//             collectionId_tokenId: {
-//               collectionId,
-//               tokenId: a.id,
-//             },
-//           },
-//           data: { attributes: a.attributes },
-//         })),
-//       },
-//     },
-//     include: { _count: true },
-//   })
-//   const txn2 = this.prismaService.nft.createMany({
-//     data: newOnes.map((a) => ({
-//       collectionId,
-//       tokenId: a.id,
-//       attributes: a.attributes,
-//     })),
-//   })
-//   const executedTxn = await this.prismaService.$transaction([txn1, txn2])
-//   return {
-//     created: executedTxn[1].count,
-//     updated: executedTxn[0]._count.Nft,
-//   }
-// } else if (whatToDo === TypeOfBatchMetadataRequest.updating) {
-//   const res = await this.prismaService.collection.update({
-//     where: { id: collectionId },
-//     data: {
-//       Nft: {
-//         update: duplicates.map((a) => ({
-//           where: {
-//             collectionId_tokenId: {
-//               collectionId,
-//               tokenId: a.id,
-//             },
-//           },
-//           data: { attributes: a.attributes },
-//         })),
-//       },
-//     },
-//     include: { _count: true },
-//   })
-//   return {
-//     updated: res._count.Nft,
-//   }
-// } else {
-//   const res = await this.prismaService.nft.createMany({
-//     data: newOnes.map((a) => ({
-//       collectionId,
-//       tokenId: a.id,
-//       attributes: a.attributes,
-//     })),
-//   })
-//   return {
-//     created: res.count,
-//   }
-// }
