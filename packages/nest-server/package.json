@@ -1,5 +1,6 @@
 {
   "author": "Alex T. <aletapia@proton.me>",
+  "version": "0.0.1",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.216.0",
     "@nestjs/common": "^9.0.0",
@@ -9,6 +10,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^4.6.1",
     "@types/lodash": "^4.14.190",
+    "@types/multer": "^1.4.7",
     "aes-js": "^3.1.2",
     "await-to-js": "^3.0.0",
     "aws-sdk-v3-nest": "^0.1.5",
@@ -87,6 +89,7 @@
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",
+    "studio": "npx prisma studio --browser none",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "prebuild": "rimraf dist",
@@ -98,6 +101,5 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:watch": "jest --watch"
-  },
-  "version": "0.0.1"
+  }
 }
