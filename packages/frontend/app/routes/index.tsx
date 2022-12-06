@@ -1,14 +1,13 @@
 export default function Index() {
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>Welcome to Remix</h1>
+    <div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
+      <h1 className="text-blue-500">Welcome to Remix</h1>
       <ul>
         <li>
           <a
             target="_blank"
             href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
+            rel="noreferrer">
             15m Quickstart Blog Tutorial
           </a>
         </li>
@@ -16,8 +15,7 @@ export default function Index() {
           <a
             target="_blank"
             href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
+            rel="noreferrer">
             Deep Dive Jokes App Tutorial
           </a>
         </li>
@@ -28,5 +26,5 @@ export default function Index() {
         </li>
       </ul>
     </div>
-  );
+  )
 }

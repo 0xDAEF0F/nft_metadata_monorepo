@@ -88,7 +88,7 @@
   "private": true,
   "scripts": {
     "build": "nest build",
-    "dev": "nest start --watch",
+    "dev": "concurrently \"nest start --watch\" \"npm run studio\"",
     "studio": "npx prisma studio --browser none",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
