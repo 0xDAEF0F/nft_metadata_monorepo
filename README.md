@@ -2,8 +2,8 @@
 
 ## Objective
 
-The objective of this monorepo is to provide an API for game developers
-that want to incorporate into web3 and blockchain technology but do not want to deal with
+The objective of this monorepo is to provide a framework for NFT projects
+that want to incorporate into web3 and blockchain but do not want to deal with
 all of the intricacies manually (RPCs, contracts, private keys, etc).
 
 We build in **public** and welcome contributions from the community.
@@ -12,12 +12,13 @@ We build in **public** and welcome contributions from the community.
 
 - Creation, verification, management, and deployments of ERC-720, ERC-1155 collections.
 - Metadata, asset, and minting management of NFTs.
-- Private key management of developer wallets in a trustless manner (sharding).
+- Private key management of developer wallets in a trustless manner.
 
 ## Packages (NX Monorepo Orchestrator)
 
-Foundry-tk: Toolkit to build smart contracts and tests
-Nestjs: Backend API
+Foundry-tk: Toolkit to create smart contracts, interact and test them.
+Nestjs: API to manage private keys, metadata, and deployment of NFTs.
+Frontend: Developer portal to interact with the API and manage your projects NFTs.
 
 ## Scripts
 
