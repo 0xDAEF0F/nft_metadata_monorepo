@@ -39,6 +39,7 @@ model Nft {
   description  String?
   image        String?
   attributes   Json?
+  amount       Int        @default(1)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   collection   Collection @relation(fields: [collectionId], references: [id])
