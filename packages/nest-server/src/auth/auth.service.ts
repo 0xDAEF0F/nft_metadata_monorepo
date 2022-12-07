@@ -24,16 +24,21 @@ export class AuthService {
       newWallet.privateKey,
       password,
     )
-    const devAcct = await this.prismaService.user.create({
+    const user = await this.prismaService.user.create({
       data: {
         ePrivateKey,
         hPassword,
         publicAddress,
         username,
       },
-      select: { id: true, username: true, publicAddress: true },
+      select: { id: true, username: true },
     })
-    return devAcct
+    return {
+      access_token: this.jwtService.sign({
+        username: user.username,
+        sub: user.id,
+      }),
+    }
   }
 
   async ejectUser(credentials: CredentialsDto) {

@@ -1,13 +1,20 @@
 import { redirect, json, fetch, createCookie } from '@remix-run/node'
 import { Link, useActionData } from '@remix-run/react'
-import type { ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const jwt = await createCookie('jwt').parse(request.headers.get('Cookie'))
+  if (jwt) return redirect('/dashboard')
+  return null
+}
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
   const username = form.get('username')
   const password = form.get('password')
 
-  if (!username || !password) return redirect('/login', { status: 401 })
+  if (!username || !password)
+    return json({ formError: 'Unauthorized' }, { status: 401 })
 
   const res = await fetch(process.env.API_BASE_URL + '/auth/login', {
     method: 'POST',
@@ -45,7 +52,16 @@ export default function Login() {
           method="post"
           action="/login"
           className="mt-6 mb-0 space-y-4 rounded-lg p-8 shadow-2xl">
-          <p className="text-lg font-medium">Log in to your account</p>
+          <div>
+            <p className="text-lg font-medium">Log in</p>
+            {actionData && actionData.formError === 'Unauthorized' ? (
+              <p className="text-xs text-red-600 mt-1">
+                Wrong username or password
+              </p>
+            ) : (
+              ''
+            )}
+          </div>
 
           <div>
             <label htmlFor="username" className="text-sm font-medium">
@@ -126,7 +142,7 @@ export default function Login() {
           <p className="text-center text-sm text-gray-500">
             No account?{' '}
             <Link className="underline" to="/register">
-              Sign up
+              Register
             </Link>
           </p>
         </form>
