@@ -1,4 +1,4 @@
-import { redirect, json, fetch } from '@remix-run/node'
+import { redirect, json, fetch, createCookie } from '@remix-run/node'
 import { Link, useActionData } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
@@ -7,21 +7,33 @@ export const action: ActionFunction = async ({ request }) => {
   const username = form.get('username')
   const password = form.get('password')
 
+  if (!username || !password) return redirect('/login', { status: 401 })
+
   const res = await fetch(process.env.API_BASE_URL + '/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   })
 
-  if (res.ok) return redirect('/dashboard')
+  if (res.ok) {
+    const { access_token } = (await res.json()) as { access_token: string }
+    return redirect('/dashboard', {
+      headers: {
+        'Set-Cookie': await createCookie('jwt').serialize(access_token),
+      },
+    })
+  }
 
-  return json({ error: 'Unauthorized' }, { status: 401 })
+  return json({ formError: 'Unauthorized' }, { status: 401 })
 }
 
 export default function Login() {
-  const actionData = useActionData()
+  const actionData = useActionData<{ formError: string }>()
 
-  console.log('actionData', actionData)
+  const inputBorder =
+    actionData && actionData.formError === 'Unauthorized'
+      ? 'border border-red-600'
+      : 'border-gray-200'
 
   return (
     <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
@@ -45,7 +57,7 @@ export default function Login() {
                 name="username"
                 id="username"
                 type="text"
-                className="w-full rounded-lg border-gray-200 p-4 pr-12 text-sm shadow-sm"
+                className={`w-full rounded-lg p-4 pr-12 text-sm shadow-sm ${inputBorder}`}
                 placeholder="Enter username"
               />
 
@@ -77,7 +89,7 @@ export default function Login() {
                 name="password"
                 id="password"
                 type="password"
-                className="w-full rounded-lg border-gray-200 p-4 pr-12 text-sm shadow-sm"
+                className={`w-full rounded-lg p-4 pr-12 text-sm shadow-sm ${inputBorder}`}
                 placeholder="Enter password"
               />
 
