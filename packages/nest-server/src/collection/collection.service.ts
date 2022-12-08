@@ -1,10 +1,22 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
+import { QueryDto } from 'src/nft/nft-dto'
 import { PrismaService } from '../prisma.service'
 import { CollectionDto, EditCollectionDto } from './collection-dto'
 
 @Injectable()
 export class CollectionService {
   constructor(private prismaService: PrismaService) {}
+
+  getMany(userId: number, query: QueryDto) {
+    const { take, cursor, sort } = query
+    return this.prismaService.collection.findMany({
+      where: { userId },
+      take,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: +cursor } : undefined,
+      orderBy: { id: sort },
+    })
+  }
 
   async createCollection(collectionDto: CollectionDto, userId: number) {
     const isCollectionExists = await this.prismaService.collection.findUnique({

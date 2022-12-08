@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common'
@@ -20,6 +21,7 @@ import { User } from './user.decorator'
 import { DeleteCollectionImagesInterceptor } from './delete-collection-images.interceptor'
 import to from 'await-to-js'
 import { CollectionExistsGuard } from './collection-exists.guard'
+import { QueryDto } from 'src/nft/nft-dto'
 
 @Controller('collection')
 @UseGuards(JwtAuthGuard)
@@ -28,6 +30,11 @@ export class CollectionController {
     private collectionService: CollectionService,
     private prismaService: PrismaService,
   ) {}
+
+  @Get('getMany')
+  getManyCollections(@User('id') userId, @Query() query: QueryDto) {
+    return this.collectionService.getMany(userId, query)
+  }
 
   @Get(':collectionId')
   @UseGuards(CollectionExistsGuard)
