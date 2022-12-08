@@ -1,9 +1,29 @@
 import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/24/outline'
+import { useActionData } from '@remix-run/react'
+import cx from 'classnames'
+
+type ActionData = {
+  formError?: string
+  fieldError?: {
+    name?: string[]
+  }
+}
 
 export function EmptyCollectionCard() {
-  const [open, setOpen] = useState(false)
+  const actionData = useActionData<ActionData>()
+  const [open, setOpen] = useState(
+    actionData?.formError || actionData?.fieldError ? true : false,
+  )
+
+  const nameErrors = actionData?.fieldError?.name?.map((msg, idx) => {
+    return (
+      <li className='list-disc text-xs text-red-600' key={idx}>
+        {msg}
+      </li>
+    )
+  })
 
   return (
     <div>
@@ -56,9 +76,25 @@ export function EmptyCollectionCard() {
                               type='name'
                               name='name'
                               id='name'
-                              className='block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                              className={cx(
+                                (actionData && actionData?.fieldError?.name) ||
+                                  actionData?.formError
+                                  ? 'border border-red-600 focus:border-red-500 focus:ring-red-500'
+                                  : 'border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500',
+                                'block w-full rounded-md p-1 shadow-sm sm:text-sm',
+                              )}
                               placeholder='CryptoPunks'
                             />
+                            {nameErrors && (
+                              <ul className='mt-1 ml-4'>{nameErrors}</ul>
+                            )}
+                            {actionData?.formError && (
+                              <ul className='mt-1 ml-4'>
+                                <li className='list-disc text-xs text-red-600'>
+                                  {actionData?.formError}
+                                </li>
+                              </ul>
+                            )}
                           </div>
                         </div>
                         <div className='mt-5 sm:mt-6'>
