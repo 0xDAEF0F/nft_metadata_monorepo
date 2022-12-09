@@ -1,5 +1,5 @@
 import { Link } from '@remix-run/react'
-import classNames from 'classnames'
+import cx from 'classnames'
 
 type Tab = {
   name: string
@@ -16,7 +16,7 @@ export function TabsWithUnderline({ tabs }: { tabs: Tab[] }) {
             <Link
               key={tab.name}
               to={tab.to}
-              className={classNames(
+              className={cx(
                 tab.current
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',

@@ -49,11 +49,6 @@ export const action: ActionFunction = async ({ request }) => {
   return json(data)
 }
 
-const tabs = [
-  { name: 'Overview', to: '/dashboard', current: true },
-  { name: 'Collections', to: '/dashboard/collections', current: false },
-]
-
 type ActionData = { privateKey?: string; formError?: string }
 
 function Index() {
@@ -66,7 +61,6 @@ function Index() {
 
   return (
     <div className='ml-16'>
-      <TabsWithUnderline tabs={tabs} />
       <div className='mx-auto max-w-7xl py-6 sm:px-6 lg:px-8'>
         <div className='px-4 py-6 sm:px-0'>
           <h2 className='text-lg font-semibold'>Account information</h2>

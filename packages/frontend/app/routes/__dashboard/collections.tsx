@@ -1,4 +1,3 @@
-import { TabsWithUnderline } from '~/components/tabs/TabsWithUnderline'
 import { createCookie, json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { CollectionCard } from '~/components/cards/CollectionCard'
@@ -6,11 +5,6 @@ import { EmptyCollectionCard } from '~/components/cards/EmptyCollectionCard'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { Collection } from '@prisma/client'
 import type { ZodIssue } from 'zod'
-
-const tabs = [
-  { name: 'Overview', to: '/dashboard', current: false },
-  { name: 'Collections', to: '/dashboard/collections', current: true },
-]
 
 export const loader: LoaderFunction = async ({ request }) => {
   const jwt = await createCookie('jwt').parse(request.headers.get('Cookie'))
@@ -69,7 +63,6 @@ export default function Collections() {
   const loaderData = useLoaderData<Collection[]>()
   return (
     <div className='ml-16'>
-      <TabsWithUnderline tabs={tabs} />
       <div className='mx-auto max-w-7xl py-6 sm:px-6 lg:px-8'>
         <div className='px-4 py-6 sm:px-0'>
           <div className='h-96 rounded-lg border-4 border-dashed border-gray-200'>

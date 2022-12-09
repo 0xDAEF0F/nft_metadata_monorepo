@@ -1,7 +1,5 @@
 import { createCookie, redirect } from '@remix-run/node'
-import { Outlet } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
-import { DashboardSidebar } from '~/components/sidebar/DashboardSidebar'
 
 // logout action
 export const action: ActionFunction = async () => {
@@ -12,15 +10,4 @@ export const action: ActionFunction = async () => {
       }).serialize(''),
     },
   })
-}
-
-export default function Dashboard() {
-  return (
-    <>
-      <div className='min-h-full'>
-        <DashboardSidebar />
-        <Outlet />
-      </div>
-    </>
-  )
 }

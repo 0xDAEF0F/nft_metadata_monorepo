@@ -66,7 +66,7 @@ export function EmptyCollectionCard() {
                       </Dialog.Title>
                       <form
                         method='post'
-                        action='/dashboard/collections'
+                        action='/collections'
                         className='mt-2'>
                         <div>
                           <label
