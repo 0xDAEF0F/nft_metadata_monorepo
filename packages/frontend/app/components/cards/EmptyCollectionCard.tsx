@@ -64,7 +64,10 @@ export function EmptyCollectionCard() {
                         className='text-lg font-medium leading-6 text-gray-900'>
                         Give your collection a name
                       </Dialog.Title>
-                      <form method='post' action='/dashboard' className='mt-2'>
+                      <form
+                        method='post'
+                        action='/dashboard?index'
+                        className='mt-2'>
                         <div>
                           <label
                             htmlFor='name'
