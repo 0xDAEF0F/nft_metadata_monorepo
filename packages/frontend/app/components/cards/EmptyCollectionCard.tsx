@@ -66,7 +66,7 @@ export function EmptyCollectionCard() {
                       </Dialog.Title>
                       <form
                         method='post'
-                        action='/collections'
+                        action='/collections?index'
                         className='mt-2'>
                         <div>
                           <label
@@ -116,11 +116,11 @@ export function EmptyCollectionCard() {
           </div>
         </Dialog>
       </Transition.Root>
-      <div
+      <button
         onClick={() => setOpen(true)}
-        className='m-3 flex max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'>
-        +
-      </div>
+        className='ml-10 mt-10 rounded-lg border-2 border-black p-3'>
+        Create New Collection
+      </button>
     </div>
   )
 }

@@ -21,8 +21,8 @@ export default function Dashboard() {
                 <Link
                   to='/dashboard'
                   className={cx(
-                    location.pathname === '/dashboard' ? 'bg-blue-50' : '',
-                    't group relative flex justify-center rounded px-2 py-1.5 text-blue-700',
+                    location.pathname.includes('dashboard') && 'bg-blue-50',
+                    'group relative flex justify-center rounded px-2 py-1.5 text-blue-700',
                   )}>
                   <HomeIcon
                     width={20}
@@ -43,7 +43,7 @@ export default function Dashboard() {
                   <Link
                     to='/collections'
                     className={cx(
-                      location.pathname === '/collections' ? 'bg-blue-50' : '',
+                      location.pathname.includes('collections') && 'bg-blue-50',
                       'group relative flex justify-center rounded px-2 py-1.5 text-gray-500 hover:bg-gray-50 hover:text-gray-700',
                     )}>
                     <RectangleGroupIcon
