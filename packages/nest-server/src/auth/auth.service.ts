@@ -15,6 +15,17 @@ export class AuthService {
     private cryptoService: CryptoService,
   ) {}
 
+  getUser(id: number) {
+    return this.prismaService.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        username: true,
+        publicAddress: true,
+      },
+    })
+  }
+
   async createUser(credentials: CredentialsDto) {
     const { username, password } = credentials
     const newWallet = ethers.Wallet.createRandom()
