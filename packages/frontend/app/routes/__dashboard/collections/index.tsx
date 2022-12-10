@@ -1,15 +1,15 @@
-import { createCookie, json, redirect } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { CollectionCard } from '~/components/cards/CollectionCard'
 import { EmptyCollectionCard } from '~/components/cards/EmptyCollectionCard'
+import { extractJwt, fetchWithJwt } from '~/lib/helpers'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { Collection } from '@prisma/client'
 import type { ZodIssue } from 'zod'
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
-  const jwt = await createCookie('jwt').parse(request.headers.get('Cookie'))
   const name = form.get('name')
+  const jwt = await extractJwt(request)
 
   if (!name) return json({ formError: 'Name is required' }, { status: 400 })
   if (!jwt) return redirect('/login')
@@ -44,13 +44,10 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const jwt = await createCookie('jwt').parse(request.headers.get('Cookie'))
-
+  const jwt = await extractJwt(request)
   if (!jwt) return redirect('/login')
 
-  const res = await fetch(process.env.API_BASE_URL + '/collection/getMany', {
-    headers: { Authorization: `Bearer ${jwt}` },
-  })
+  const res = await fetchWithJwt('/collection/getMany', jwt)
 
   if (!res.ok) return redirect('/login')
 

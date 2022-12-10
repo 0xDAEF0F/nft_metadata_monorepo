@@ -21,6 +21,7 @@ export class NftController {
     @Query() { take, cursor, sort }: QueryDto,
   ) {
     return this.prismaService.nft.findMany({
+      where: { collectionId },
       take,
       skip: cursor ? 1 : 0,
       cursor: cursor

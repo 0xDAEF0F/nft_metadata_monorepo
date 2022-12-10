@@ -1,25 +1,20 @@
-import { TabsWithUnderline } from '~/components/tabs/TabsWithUnderline'
+import { useState, Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import cx from 'classnames'
-import { createCookie, json, redirect } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData } from '@remix-run/react'
+import { extractJwt, fetchWithJwt } from '~/lib/helpers'
+import cx from 'classnames'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { User } from '@prisma/client'
-import { useState, Fragment } from 'react'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const jwt = await createCookie('jwt').parse(request.headers.get('Cookie'))
-
+  const jwt = await extractJwt(request)
   if (!jwt) return redirect('/login')
 
-  const res = await fetch(process.env.API_BASE_URL + '/auth/whoami', {
-    headers: { Authorization: `Bearer ${jwt}` },
-  })
-
+  const res = await fetchWithJwt('/auth/whoami', jwt)
   if (!res.ok) return redirect('/login')
 
   const data = await res.json()
-
   return json(data)
 }
 
@@ -27,8 +22,7 @@ export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
   const username = form.get('username')
   const password = form.get('password')
-
-  const jwt = await createCookie('jwt').parse(request.headers.get('Cookie'))
+  const jwt = await extractJwt(request)
 
   if (!username || !password) return json({ formError: 'Missing fields' })
   if (!jwt) return redirect('/login')
