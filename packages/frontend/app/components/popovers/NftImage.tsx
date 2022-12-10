@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { usePopper } from 'react-popper'
 
-export function NftImage({ url, alt }: { url: string; alt: string }) {
+export function TableImageThumbnail({
+  url,
+  alt,
+}: {
+  url: string
+  alt: string
+}) {
   const [isHovering, setIsHovering] = useState(false)
 
   const [thumbnailEl, setThumbnailElem] = useState<HTMLImageElement | null>(
@@ -20,7 +26,7 @@ export function NftImage({ url, alt }: { url: string; alt: string }) {
         ref={setThumbnailElem}
         onMouseEnter={() => setIsHovering(true)}
         onMouseOut={() => setIsHovering(false)}
-        className='m-10 w-10 rounded-lg'
+        className='w-10 rounded-lg'
         src={url}
         alt={alt}
       />
