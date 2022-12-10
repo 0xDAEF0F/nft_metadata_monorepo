@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 import { extractJwt, fetchWithJwt } from '~/lib/helpers'
 import type { LoaderFunction } from '@remix-run/node'
 import type { Nft } from '@prisma/client'
+import { NftImage } from '~/components/atoms/NftImage'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const jwt = await extractJwt(request)
@@ -17,5 +18,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function Index() {
   const loaderData = useLoaderData<Nft[]>()
 
-  return <div>Number of Nfts in collection: {loaderData.length}</div>
+  return (
+    <>
+      {loaderData.length > 0 && (
+        <NftImage url={loaderData[0].image || ''} alt={'alt'} />
+      )}
+      <div>Number of Nfts in collection: {loaderData.length}</div>
+    </>
+  )
 }
