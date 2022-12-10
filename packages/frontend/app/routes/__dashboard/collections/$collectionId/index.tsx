@@ -3,7 +3,19 @@ import { useLoaderData } from '@remix-run/react'
 import { extractJwt, fetchWithJwt } from '~/lib/helpers'
 import { TableImageThumbnail } from '~/components/popovers/NftImage'
 import type { LoaderFunction } from '@remix-run/node'
-import type { Nft } from '@prisma/client'
+import type { Nft as NftPrisma } from '@prisma/client'
+import { NftAttribute } from '~/components/popovers/NftAttribute'
+
+type Nft = NftPrisma & {
+  attributes:
+    | {
+        trait_type: string
+        value: string
+      }[]
+    | null
+  createdAt: string
+  updatedAt: string
+}
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const jwt = await extractJwt(request)
@@ -49,7 +61,7 @@ function NftTable({ nfts }: { nfts: Nft[] }) {
                     <th
                       scope='col'
                       className='px-3 py-3.5 text-left text-sm font-semibold text-gray-900'>
-                      Name
+                      Attributes
                     </th>
                     <th
                       scope='col'
@@ -59,25 +71,35 @@ function NftTable({ nfts }: { nfts: Nft[] }) {
                   </tr>
                 </thead>
                 <tbody className='divide-y divide-gray-200 bg-white'>
-                  {nfts.map((nft) => (
-                    <tr key={nft.tokenId}>
-                      <td className='whitespace-nowrap p-2 text-sm font-medium text-gray-900 sm:pl-6'>
-                        <TableImageThumbnail
-                          url={nft.image || ''}
-                          alt={'alt'}
-                        />
-                      </td>
-                      <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
-                        {nft.tokenId}
-                      </td>
-                      <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
-                        {JSON.stringify(nft.attributes)}
-                      </td>
-                      <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
-                        {nft.amount}
-                      </td>
-                    </tr>
-                  ))}
+                  {nfts.map((nft) => {
+                    return (
+                      <tr key={nft.tokenId}>
+                        <td className='whitespace-nowrap p-2 text-sm font-medium text-gray-900 sm:pl-6'>
+                          <TableImageThumbnail
+                            url={nft.image || ''}
+                            alt={'alt'}
+                          />
+                        </td>
+                        <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
+                          {nft.tokenId}
+                        </td>
+                        <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
+                          {nft.attributes?.map((attr, idx) => {
+                            return (
+                              <NftAttribute
+                                key={idx}
+                                trait_type={attr.trait_type}
+                                value={attr.value}
+                              />
+                            )
+                          })}
+                        </td>
+                        <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
+                          {nft.amount}
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
