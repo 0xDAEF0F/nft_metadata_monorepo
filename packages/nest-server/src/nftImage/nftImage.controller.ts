@@ -32,6 +32,6 @@ export class ImageController {
     if (!this.utilService.isArrayInSequence(requestAssetIds))
       throw new BadRequestException('assets are not in sequence')
 
-    return 'processing images'
+    return { data: 'processing images' }
   }
 }
