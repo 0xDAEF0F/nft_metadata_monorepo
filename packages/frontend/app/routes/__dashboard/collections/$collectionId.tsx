@@ -6,8 +6,8 @@ export default function Collection() {
   const params = useParams()
 
   return (
-    <div className='border-b border-gray-200 bg-white'>
-      <nav className='-mb-px flex h-16 space-x-8' aria-label='Tabs'>
+    <>
+      <nav className='-mb-px flex h-16 space-x-8 border-b' aria-label='Tabs'>
         <Link
           to={`/collections/${params.collectionId}`}
           className={cx(
@@ -42,6 +42,6 @@ export default function Collection() {
         </Link>
       </nav>
       <Outlet />
-    </div>
+    </>
   )
 }
