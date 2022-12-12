@@ -5,6 +5,7 @@ import { TableImageThumbnail } from '~/components/popovers/NftImage'
 import type { LoaderFunction } from '@remix-run/node'
 import type { Nft as NftPrisma } from '@prisma/client'
 import { NftAttribute } from '~/components/popovers/NftAttribute'
+import { EditCollection } from '~/components/forms/EditCollection'
 
 type Nft = NftPrisma & {
   attributes:
@@ -32,7 +33,9 @@ export default function Index() {
 
   return (
     <>
-      <div>Number of Nfts in collection: {loaderData.length}</div>
+      <div className='center my-12 flex justify-center'>
+        <EditCollection />
+      </div>
       {loaderData.length > 0 && <NftTable nfts={loaderData} />}
     </>
   )
