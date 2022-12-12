@@ -2,10 +2,10 @@ import { json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { extractJwt, fetchWithJwt } from '~/lib/helpers'
 import { TableImageThumbnail } from '~/components/popovers/NftImage'
-import type { LoaderFunction } from '@remix-run/node'
-import type { Nft as NftPrisma } from '@prisma/client'
 import { NftAttribute } from '~/components/popovers/NftAttribute'
 import { EditCollection } from '~/components/forms/EditCollection'
+import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import type { Collection, Nft as NftPrisma } from '@prisma/client'
 
 type Nft = NftPrisma & {
   attributes:
@@ -25,18 +25,74 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const res = await fetchWithJwt(`/nft/${params.collectionId}`, jwt)
   const data = await res.json()
 
-  return json(data as Nft[])
+  const collectionResponse = await fetchWithJwt(
+    `/collection/${params.collectionId}`,
+    jwt,
+  )
+  const collectionData = await collectionResponse.json()
+
+  return json({ nfts: data, collection: collectionData })
+}
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const jwt = await extractJwt(request)
+  if (!jwt) return redirect('/login')
+
+  const formData = await request.formData()
+  const intent = formData.get('intent')
+
+  if (intent === 'reset') {
+    return redirect(`/collections/${params.collectionId}`)
+  }
+
+  if (intent === 'delete') {
+    const deleteResponse = await fetch(
+      `${process.env.API_BASE_URL}/collection/delete/${params.collectionId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      },
+    )
+    if (deleteResponse.ok) return redirect('/collections')
+
+    const data = deleteResponse.json()
+    return json(data)
+  }
+
+  if (intent === 'update') {
+    const name = formData.get('name')
+    const description = formData.get('description')
+    const externalUrl = formData.get('company-website')
+    const updateResponse = await fetch(
+      `${process.env.API_BASE_URL}/collection/edit/${params.collectionId}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({ name, description, externalUrl }),
+      },
+    )
+    if (updateResponse.ok)
+      return redirect(`/collections/${params.collectionId}`)
+
+    const updateData = await updateResponse.json()
+    return json(updateData)
+  }
 }
 
 export default function Index() {
-  const loaderData = useLoaderData<Nft[]>()
+  const loaderData = useLoaderData<{ nfts: Nft[]; collection: Collection }>()
 
   return (
     <>
       <div className='center my-12 flex justify-center'>
-        <EditCollection />
+        <EditCollection collection={loaderData.collection} />
       </div>
-      {loaderData.length > 0 && <NftTable nfts={loaderData} />}
+      {loaderData.nfts.length > 0 && <NftTable nfts={loaderData.nfts} />}
     </>
   )
 }

@@ -3,6 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData } from '@remix-run/react'
 import { extractJwt, fetchWithJwt } from '~/lib/helpers'
+import { formatEthAddress } from 'eth-address'
 import cx from 'classnames'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { User } from '@prisma/client'
@@ -61,7 +62,9 @@ function Index() {
           <ul>
             <li>Username: {loaderData.username}</li>
             <li>Balance</li>
-            <li>Public address: {loaderData.publicAddress}</li>
+            <li>
+              Public address: {formatEthAddress(loaderData.publicAddress)}
+            </li>
           </ul>
           <p className='inline'>Retrieve Private Key:</p>
           <button
