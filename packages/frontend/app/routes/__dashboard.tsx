@@ -1,9 +1,23 @@
-import { Outlet, useLocation } from '@remix-run/react'
-import { Link } from '@remix-run/react'
+import { Outlet, useLocation, useLoaderData, Link } from '@remix-run/react'
 import { HomeIcon, RectangleGroupIcon } from '@heroicons/react/20/solid'
+import { redirect, json } from '@remix-run/node'
+import { extractJwt, fetchWithJwt } from '~/lib/helpers'
+import Blockies from 'react-blockies'
 import cx from 'classnames'
+import type { LoaderFunction } from '@remix-run/node'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const jwt = await extractJwt(request)
+  if (!jwt) return redirect('/login')
+
+  const userRequest = await fetchWithJwt('/auth/whoami', jwt)
+  const userData = await userRequest.json()
+
+  return json({ address: userData.publicAddress })
+}
 
 export default function Dashboard() {
+  const loaderData = useLoaderData()
   const location = useLocation()
 
   return (
@@ -11,9 +25,16 @@ export default function Dashboard() {
     <div className='min-h-full'>
       <div className='fixed inset-y-0 flex h-screen w-16 flex-col justify-between border-r bg-white'>
         <div>
-          <div className='inline-flex h-16 w-16 items-center justify-center'>
-            <span className='block h-10 w-10 rounded-lg bg-gray-200'></span>
-          </div>
+          <Link
+            to='/'
+            className='inline-flex h-16 w-16 items-center justify-center'>
+            {/* TODO: This blockie is giving a warning (componenWillUpdate) */}
+            <Blockies
+              size={10}
+              seed={loaderData.address}
+              className='rounded-lg'
+            />
+          </Link>
 
           <div className='border-t border-gray-100'>
             <nav aria-label='Main Nav' className='flex flex-col p-2'>
