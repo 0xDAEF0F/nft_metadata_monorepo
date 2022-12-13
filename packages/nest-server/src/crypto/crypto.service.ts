@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { scrypt } from 'scrypt-js'
-import * as aesjs from 'aes-js'
 import { ethers } from 'ethers'
-import { abi, bytecode } from 'foundry-tk'
+import { artifacts } from 'foundry-tk'
+import * as aesjs from 'aes-js'
 @Injectable()
 export class CryptoService {
   private provider
@@ -50,15 +50,23 @@ export class CryptoService {
     return decryptedUtf8
   }
 
-  // Creates a new contract instance of our smart contract
-  // defined in foundry-tk package
   async createERC1155Contract() {
     const factory = new ethers.ContractFactory(
-      new ethers.utils.Interface(abi),
-      bytecode,
+      new ethers.utils.Interface(artifacts.ERC1155.abi),
+      artifacts.ERC1155.bytecode,
       this.createAnvilWalletZero().connect(this.provider),
     )
     const deployedContract = await factory.deploy()
+    return deployedContract.deployTransaction
+  }
+
+  async createERC721Contract() {
+    const factory = new ethers.ContractFactory(
+      new ethers.utils.Interface(artifacts.ERC721.abi),
+      artifacts.ERC721.bytecode,
+      this.createAnvilWalletZero().connect(this.provider),
+    )
+    const deployedContract = await factory.deploy('merkleroot')
     return deployedContract.deployTransaction
   }
 }

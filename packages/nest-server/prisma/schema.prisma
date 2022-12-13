@@ -23,6 +23,7 @@ model Collection {
   name        String   @unique
   deployed    Boolean  @default(false)
   standard    Standard @default(ERC1155)
+  inviteList  String[]
   description String?
   image       String?
   externalUrl String?
