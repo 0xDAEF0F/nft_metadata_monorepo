@@ -4,6 +4,8 @@ import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData } from '@remix-run/react'
 import { extractJwt, fetchWithJwt } from '~/lib/helpers'
 import { formatEthAddress } from 'eth-address'
+import { BookOpenIcon, ClipboardIcon } from '@heroicons/react/24/outline'
+import { SuccessNotification } from '~/components/popovers/SuccessNotification'
 import cx from 'classnames'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { User } from '@prisma/client'
@@ -53,19 +55,54 @@ function Index() {
   const [open, setOpen] = useState(
     actionData && actionData?.formError ? true : false,
   )
+  const [showSuccessCopyAddress, setShowSuccessCopyAddress] = useState(false)
+
+  const clearCopyNotification = () => {
+    setTimeout(() => setShowSuccessCopyAddress(false), 3000)
+  }
 
   return (
     <div className='ml-16'>
+      <SuccessNotification
+        show={showSuccessCopyAddress}
+        setShow={setShowSuccessCopyAddress}
+        data={{
+          header: 'Success!',
+          description: `address ${formatEthAddress(
+            loaderData.publicAddress,
+          )} copied to clipboard`,
+        }}
+      />
       <div className='mx-auto max-w-7xl py-6 sm:px-6 lg:px-8'>
         <div className='px-4 py-6 sm:px-0'>
-          <h2 className='text-lg font-semibold'>Account information</h2>
-          <ul>
-            <li>Username: {loaderData.username}</li>
-            <li>Balance</li>
-            <li>
-              Public address: {formatEthAddress(loaderData.publicAddress)}
-            </li>
-          </ul>
+          <h1 className='text-sm font-semibold uppercase'>
+            Account information
+          </h1>
+          <p className='text-lg font-semibold'>{loaderData.username}</p>
+          <div className='flex h-24 w-72 justify-evenly rounded-lg border bg-white shadow-sm'>
+            <div className='mx-2 flex flex-col items-center justify-center'>
+              <p className='text-sm uppercase'>
+                <BookOpenIcon className='mx-1 inline' width={20} />
+                Eth Address
+              </p>
+              <p className='font-semibold'>
+                {formatEthAddress(loaderData.publicAddress)}
+              </p>
+            </div>
+            <div className='mx-2 flex items-center justify-center'>
+              <button
+                onClick={() => {
+                  navigator.clipboard
+                    .writeText(loaderData.publicAddress)
+                    .then(() => setShowSuccessCopyAddress(true))
+                    .finally(clearCopyNotification)
+                }}
+                className='flex w-16 rounded-lg border-2 border-black bg-gray-50 px-2 py-3 text-xs uppercase'>
+                Copy
+                <ClipboardIcon width={20} />
+              </button>
+            </div>
+          </div>
           <p className='inline'>Retrieve Private Key:</p>
           <button
             onClick={() => setOpen(true)}
