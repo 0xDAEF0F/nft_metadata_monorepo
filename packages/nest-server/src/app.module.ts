@@ -16,6 +16,7 @@ import { ImageController } from './nftImage/nftImage.controller'
 import { AttributesService } from './attributes/attributes.service'
 import { AttributesController } from './attributes/attributes.controller'
 import { NftController } from './nft/nft.controller'
+import { WhitelistController } from './whitelist/whitelist.controller'
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { NftController } from './nft/nft.controller'
     ImageController,
     AttributesController,
     NftController,
+    WhitelistController,
   ],
   providers: [
     CryptoService,
