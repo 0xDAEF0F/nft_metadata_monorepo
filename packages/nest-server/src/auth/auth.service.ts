@@ -1,4 +1,4 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { compareSync, hashSync } from 'bcryptjs'
 import { User } from '@prisma/client'
@@ -52,21 +52,18 @@ export class AuthService {
     }
   }
 
-  async ejectUser(credentials: CredentialsDto) {
-    const user = await this.prismaService.user.findUnique({
-      where: { username: credentials.username },
-      select: { ePrivateKey: true, publicAddress: true },
-    })
-
-    // since user already passed the local-auth guard
-    // he MUST exist
-    if (!user) throw new NotAcceptableException()
+  async ejectUser({ username, password }: CredentialsDto) {
+    const { ePrivateKey, publicAddress } =
+      await this.prismaService.user.findUniqueOrThrow({
+        where: { username: username },
+        select: { ePrivateKey: true, publicAddress: true },
+      })
 
     const privateKey = await this.cryptoService.decryptEthPrivateKey(
-      user.ePrivateKey,
-      credentials.password,
+      ePrivateKey,
+      password,
     )
-    return { privateKey, publicAddress: user.publicAddress }
+    return { privateKey, publicAddress }
   }
 
   async validateCredentials(username: string, password: string) {

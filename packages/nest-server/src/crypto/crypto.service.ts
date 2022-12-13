@@ -1,23 +1,16 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { scrypt } from 'scrypt-js'
 import { ethers } from 'ethers'
 import { artifacts } from 'foundry-tk'
 import * as aesjs from 'aes-js'
+import to from 'await-to-js'
 @Injectable()
 export class CryptoService {
   private provider
-  // TODO: Need to handle providers differently and
-  // change networks dynamically
+
   constructor() {
     this.provider = new ethers.providers.JsonRpcProvider(
-      'http://localhost:8545',
-    )
-  }
-
-  // Default first wallet that anvil provides for testing purposes
-  createAnvilWalletZero() {
-    return new ethers.Wallet(
-      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      'http://127.0.0.1:8545',
     )
   }
 
@@ -50,23 +43,27 @@ export class CryptoService {
     return decryptedUtf8
   }
 
-  async createERC1155Contract() {
+  async createERC1155Contract(privateKey: string) {
     const factory = new ethers.ContractFactory(
       new ethers.utils.Interface(artifacts.ERC1155.abi),
       artifacts.ERC1155.bytecode,
-      this.createAnvilWalletZero().connect(this.provider),
+      new ethers.Wallet(privateKey).connect(this.provider),
     )
     const deployedContract = await factory.deploy()
     return deployedContract.deployTransaction
   }
 
-  async createERC721Contract() {
+  async createERC721Contract(privateKey: string, merkleRoot: string) {
     const factory = new ethers.ContractFactory(
       new ethers.utils.Interface(artifacts.ERC721.abi),
       artifacts.ERC721.bytecode,
-      this.createAnvilWalletZero().connect(this.provider),
+      new ethers.Wallet(privateKey).connect(this.provider),
     )
-    const deployedContract = await factory.deploy('merkleroot')
-    return deployedContract.deployTransaction
+    const [err, contract] = await to(factory.deploy(merkleRoot))
+    if (err) {
+      console.log(err)
+      throw new InternalServerErrorException(err.message)
+    }
+    return { contractAddress: contract.address }
   }
 }

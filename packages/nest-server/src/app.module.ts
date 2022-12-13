@@ -17,6 +17,7 @@ import { AttributesService } from './attributes/attributes.service'
 import { AttributesController } from './attributes/attributes.controller'
 import { NftController } from './nft/nft.controller'
 import { WhitelistController } from './whitelist/whitelist.controller'
+import { WhitelistService } from './whitelist/whitelist.service'
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { WhitelistController } from './whitelist/whitelist.controller'
     ImageService,
     UtilService,
     AttributesService,
+    WhitelistService,
   ],
 })
 export class AppModule {}

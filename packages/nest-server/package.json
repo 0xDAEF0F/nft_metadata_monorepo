@@ -18,6 +18,7 @@
     "foundry-tk": "*",
     "is-number": "^7.0.0",
     "lodash": "^4.17.21",
+    "merkletreejs": "^0.3.9",
     "nestjs-zod": "^1.2.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",

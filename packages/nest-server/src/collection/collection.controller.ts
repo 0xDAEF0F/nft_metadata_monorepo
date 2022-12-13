@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -22,6 +23,10 @@ import { DeleteCollectionImagesInterceptor } from './delete-collection-images.in
 import to from 'await-to-js'
 import { CollectionExistsGuard } from './collection-exists.guard'
 import { QueryDto } from 'src/nft/nft-dto'
+import { WhitelistService } from 'src/whitelist/whitelist.service'
+import { CryptoService } from 'src/crypto/crypto.service'
+import { AuthService } from 'src/auth/auth.service'
+import { CredentialsDto } from 'src/auth/credentials-dto'
 
 @Controller('collection')
 @UseGuards(JwtAuthGuard)
@@ -29,6 +34,9 @@ export class CollectionController {
   constructor(
     private collectionService: CollectionService,
     private prismaService: PrismaService,
+    private whitelistService: WhitelistService,
+    private authService: AuthService,
+    private cryptoService: CryptoService,
   ) {}
 
   @Get('getMany')
@@ -83,5 +91,24 @@ export class CollectionController {
     if (err) throw new InternalServerErrorException()
 
     return { collectionId: collectionId, success: true }
+  }
+
+  @Post('deploy/:collectionId')
+  @UseGuards(UserOwnsCollection)
+  async deployCollection(
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+    @Body() credentialsDto: CredentialsDto,
+  ) {
+    const { inviteList } =
+      await this.prismaService.collection.findUniqueOrThrow({
+        where: { id: collectionId },
+        select: { inviteList: true },
+      })
+    if (inviteList.length === 0)
+      throw new BadRequestException('No whitelist addresses in collection')
+
+    const merkleRoot = this.whitelistService.computeRoot(inviteList)
+    const { privateKey } = await this.authService.ejectUser(credentialsDto)
+    return this.cryptoService.createERC721Contract(privateKey, merkleRoot)
   }
 }
