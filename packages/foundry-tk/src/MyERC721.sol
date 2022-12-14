@@ -32,7 +32,7 @@ contract MyERC721 is ERC721, Owned {
     }
 
     function mint(bytes32[] calldata proof) public {
-        if (_currentSupply < MAX_SUPPLY) revert MaxSupplyReached();
+        if (_currentSupply > MAX_SUPPLY) revert MaxSupplyReached();
         if (
             !MerkleProofLib.verify(
                 proof,

@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common'
+import { keccak256 } from 'ethers/lib/utils'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { CollectionExistsGuard } from 'src/collection/collection-exists.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
@@ -58,6 +59,12 @@ export class WhitelistController {
     if (!this.whiteListService.isAddressPartOfInviteList(inviteList, address))
       throw new BadRequestException('address is not in whitelist.')
 
-    return { proof: this.whiteListService.getProof(inviteList, address) }
+    const tree = this.whiteListService.constructMerkeTree(inviteList)
+    const proof = this.whiteListService.getProof(inviteList, address)
+    const root = this.whiteListService.computeRoot(inviteList)
+
+    console.log('isleaf: ', tree.verify(proof, keccak256(address), root))
+
+    return { proof, root }
   }
 }

@@ -1,6 +1,6 @@
 import { createZodDto } from 'nestjs-zod'
 import { z } from 'nestjs-zod/z'
-import { isAddress } from 'ethers/lib/utils'
+import { getAddress, isAddress } from 'ethers/lib/utils'
 import { toLower, uniq } from 'lodash'
 
 const WhiteListSchema = z.object({
@@ -9,6 +9,7 @@ const WhiteListSchema = z.object({
       z
         .string()
         .transform(toLower)
+        .transform(getAddress)
         .refine(isAddress, 'invalid ethereum address'),
     )
     .min(0)
