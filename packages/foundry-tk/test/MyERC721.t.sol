@@ -23,13 +23,13 @@ contract MyERC721Test is Test {
             1,
             'My NFT',
             'MYNFT',
-            bytes32('www.baseUrl.com')
+            'www.baseUrl.com/'
         );
     }
 
     function testBaseUri() public {
-        bytes32 baseURI = myERC721.baseUrl();
-        // need library for this
+        string memory tokenZeroUri = myERC721.tokenURI(0);
+        assertEq(tokenZeroUri, 'www.baseUrl.com/0');
     }
 
     function testCannotMintMoreThanSupply() public {

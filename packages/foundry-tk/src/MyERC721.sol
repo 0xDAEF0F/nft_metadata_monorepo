@@ -4,20 +4,19 @@ pragma solidity ^0.8.10;
 import { ERC721 } from 'solmate/tokens/ERC721.sol';
 import { Owned } from 'solmate/auth/Owned.sol';
 import { MerkleProofLib } from 'solmate/utils/MerkleProofLib.sol';
+import { Strings } from 'openzeppelin-contracts/utils/Strings.sol';
 
 contract MyERC721 is ERC721, Owned {
+    using Strings for uint256;
     /*//////////////////////////////////////////////////////////////
                           STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
-
-    // constants initialized in constructor
     bytes32 public immutable merkleRoot;
     uint256 public immutable maxSupply;
     uint256 public immutable deployedAt;
-    bytes32 public immutable baseUrl;
 
-    // Counter for minted NFTs
     uint256 private s_counter;
+    string private s_baseUrl;
 
     /*//////////////////////////////////////////////////////////////
                                  ERRORS
@@ -30,16 +29,16 @@ contract MyERC721 is ERC721, Owned {
         uint256 _supply,
         string memory name,
         string memory symbol,
-        bytes32 _baseUrl
+        string memory _baseUrl
     ) ERC721(name, symbol) Owned(msg.sender) {
         merkleRoot = _merkleRoot;
         maxSupply = _supply;
         deployedAt = block.timestamp;
-        baseUrl = _baseUrl;
+        s_baseUrl = _baseUrl;
     }
 
-    function tokenURI(uint256 id) public pure override returns (string memory) {
-        return string(abi.encodePacked('https://mydomain.com/', id));
+    function tokenURI(uint256 id) public view override returns (string memory) {
+        return string(abi.encodePacked(s_baseUrl, id.toString()));
     }
 
     function mint(bytes32[] calldata proof) public {

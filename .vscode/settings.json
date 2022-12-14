@@ -2,7 +2,8 @@
   "solidity.solhintRules": {},
   "solidity.remappings": [
     "forge-std/=packages/foundry-tk/lib/forge-std/src/",
-    "solmate/=packages/foundry-tk/lib/solmate/src/"
+    "solmate/=packages/foundry-tk/lib/solmate/src/",
+    "openzeppelin-contracts/=packages/foundry-tk/lib/openzeppelin-contracts/contracts/"
   ],
   "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
