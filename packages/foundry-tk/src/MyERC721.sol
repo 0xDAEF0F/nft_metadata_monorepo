@@ -9,22 +9,33 @@ contract MyERC721 is ERC721, Owned {
     /*//////////////////////////////////////////////////////////////
                           STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
-    uint256 public constant MAX_SUPPLY = 10000;
 
-    // Merkle root of the NFT allowlist
+    // constants initialized in constructor
     bytes32 public immutable merkleRoot;
+    uint256 public immutable maxSupply;
+    uint256 public immutable deployedAt;
+    bytes32 public immutable baseUrl;
 
     // Counter for minted NFTs
-    uint256 private _currentSupply = 0;
+    uint256 private s_counter;
 
     /*//////////////////////////////////////////////////////////////
                                  ERRORS
     //////////////////////////////////////////////////////////////*/
-    error InvalidProof();
+    error InvalidProofOrNotTimeToMint();
     error MaxSupplyReached();
 
-    constructor(bytes32 _merkleRoot) ERC721('MY NFT', 'NFT') Owned(msg.sender) {
+    constructor(
+        bytes32 _merkleRoot,
+        uint256 _supply,
+        string memory name,
+        string memory symbol,
+        bytes32 _baseUrl
+    ) ERC721(name, symbol) Owned(msg.sender) {
         merkleRoot = _merkleRoot;
+        maxSupply = _supply;
+        deployedAt = block.timestamp;
+        baseUrl = _baseUrl;
     }
 
     function tokenURI(uint256 id) public pure override returns (string memory) {
@@ -32,14 +43,15 @@ contract MyERC721 is ERC721, Owned {
     }
 
     function mint(bytes32[] calldata proof) public {
-        if (_currentSupply > MAX_SUPPLY) revert MaxSupplyReached();
+        if (s_counter >= maxSupply) revert MaxSupplyReached();
         if (
+            (block.timestamp < deployedAt + 1 days) &&
             !MerkleProofLib.verify(
                 proof,
                 merkleRoot,
                 keccak256(abi.encodePacked(msg.sender))
             )
-        ) revert InvalidProof();
-        _safeMint(msg.sender, _currentSupply++);
+        ) revert InvalidProofOrNotTimeToMint();
+        _safeMint(msg.sender, s_counter++);
     }
 }

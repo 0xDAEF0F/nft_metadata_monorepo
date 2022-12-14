@@ -59,7 +59,9 @@ export class CryptoService {
       artifacts.ERC721.bytecode,
       new ethers.Wallet(privateKey).connect(this.provider),
     )
-    const [err, contract] = await to(factory.deploy(merkleRoot))
+    const [err, contract] = await to(
+      factory.deploy(merkleRoot, 'name', 'symbol'),
+    )
     if (err) {
       console.log(err)
       throw new InternalServerErrorException(err.message)
