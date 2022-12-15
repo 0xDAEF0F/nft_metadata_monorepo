@@ -70,7 +70,7 @@ export class CryptoService {
         usersAddresses[i].publicAddress,
       )
 
-      if (balance.gte(ethers.utils.parseEther('2'))) continue
+      if (balance.gte(ethers.utils.parseEther('1'))) continue
 
       await funderWallet.sendTransaction({
         to: usersAddresses[i].publicAddress,

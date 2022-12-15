@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { CryptoService } from './crypto/crypto.service'
@@ -7,11 +8,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const prismaService = app.get(PrismaService)
   const cryptoService = app.get(CryptoService)
+  const configService = app.get(ConfigService)
+
   await prismaService.enableShutdownHooks(app)
   await app.listen(3000)
 
   // Fund users wallets
-  if (process.env.PRODUCTION === 'false') {
+  if (configService.get<string>('NODE_ENV') === 'development') {
     cryptoService.fundUsersWallet()
   }
 }

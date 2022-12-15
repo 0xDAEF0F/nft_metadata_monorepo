@@ -28,6 +28,7 @@ import { CryptoService } from 'src/crypto/crypto.service'
 import { AuthService } from 'src/auth/auth.service'
 import { CredentialsDto } from 'src/auth/credentials-dto'
 import { MetadataService } from 'src/metadata/metadata.service'
+import { ConfigService } from '@nestjs/config'
 
 @Controller('collection')
 @UseGuards(JwtAuthGuard)
@@ -39,6 +40,7 @@ export class CollectionController {
     private authService: AuthService,
     private cryptoService: CryptoService,
     private metadataService: MetadataService,
+    private configService: ConfigService,
   ) {}
 
   @Get('getMany')
@@ -132,7 +134,11 @@ export class CollectionController {
       collectionName,
       collectionTicker: collectionName.slice(0, 3).toUpperCase(),
       maxSupply: _count.Nft,
-      baseUrl: '',
+      baseUrl:
+        this.configService.getOrThrow<string>('API_BASE_URL') +
+        'metadata/' +
+        collectionId +
+        '/',
     })
   }
 }

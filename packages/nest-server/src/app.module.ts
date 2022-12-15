@@ -20,6 +20,7 @@ import { WhitelistController } from './whitelist/whitelist.controller'
 import { WhitelistService } from './whitelist/whitelist.service'
 import { MetadataService } from './metadata/metadata.service'
 import { MetadataController } from './metadata/metadata.controller'
+import { ConfigModule } from '@nestjs/config'
 
 @Module({
   imports: [
@@ -33,6 +34,10 @@ import { MetadataController } from './metadata/metadata.controller'
       }),
     }),
     AuthModule,
+    ConfigModule.forRoot({
+      envFilePath: ['.env', '.env.development', '.env.development.local'],
+      isGlobal: true,
+    }),
   ],
   controllers: [
     AppController,
