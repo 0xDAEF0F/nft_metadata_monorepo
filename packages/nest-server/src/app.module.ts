@@ -18,6 +18,8 @@ import { AttributesController } from './attributes/attributes.controller'
 import { NftController } from './nft/nft.controller'
 import { WhitelistController } from './whitelist/whitelist.controller'
 import { WhitelistService } from './whitelist/whitelist.service'
+import { MetadataService } from './metadata/metadata.service'
+import { MetadataController } from './metadata/metadata.controller'
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { WhitelistService } from './whitelist/whitelist.service'
     AttributesController,
     NftController,
     WhitelistController,
+    MetadataController,
   ],
   providers: [
     CryptoService,
@@ -50,6 +53,7 @@ import { WhitelistService } from './whitelist/whitelist.service'
     UtilService,
     AttributesService,
     WhitelistService,
+    MetadataService,
   ],
 })
 export class AppModule {}
