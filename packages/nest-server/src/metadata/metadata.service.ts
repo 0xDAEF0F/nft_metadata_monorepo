@@ -1,10 +1,48 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common'
 import { Nft } from '@prisma/client'
+import to from 'await-to-js'
+import { ImageService } from 'src/nftImage/nftImage.service'
 import { PrismaService } from 'src/prisma.service'
+import { S3Service } from 'src/s3/s3.service'
 
 @Injectable()
 export class MetadataService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private s3Service: S3Service,
+    private imageService: ImageService,
+  ) {}
+
+  async uploadMetadataForNft(collectionId: number, tokenId: number) {
+    const nftJson = await this.getMetadataForSpecificNft(collectionId, tokenId)
+
+    const [err] = await to(
+      this.s3Service.uploadObject(
+        `${collectionId}/${tokenId}.json`,
+        Buffer.from(JSON.stringify(nftJson)),
+      ),
+    )
+    if (err) {
+      console.log(err)
+      throw new InternalServerErrorException('error uploading metadata to aws')
+    }
+
+    const jsonURL = this.imageService.getAwsImageUrl(
+      collectionId,
+      `${tokenId}.json`,
+    )
+
+    const updatedNft = await this.prismaService.nft.update({
+      where: { collectionId_tokenId: { collectionId, tokenId } },
+      data: { metadataUrl: jsonURL },
+    })
+
+    return updatedNft
+  }
 
   async getMetadataForCollection(collectionId: number) {
     const collectionNfts =
@@ -26,15 +64,20 @@ export class MetadataService {
       where: { collectionId_tokenId: { collectionId, tokenId } },
       include: { collection: { select: { name: true } } },
     })
+
+    if (!this.isNftMetadataComplete(nft))
+      throw new BadRequestException('Not all nfts complete')
+
     return this.transformNftToJsonMetadata(nft, nft.collection.name)
   }
 
   isCollectionMetadataComplete(nfts: Nft[]) {
-    const doAllNftsHaveImage = nfts.every((nft) => nft.image)
-    const doAllNftsHaveAttributes = nfts.every((nft) => nft.attributes)
+    return nfts.every(this.isNftMetadataComplete)
+  }
 
-    if (!doAllNftsHaveAttributes || !doAllNftsHaveImage) return false
-
+  isNftMetadataComplete(nft: Nft) {
+    if (!nft.attributes) return false
+    if (!nft.image) return false
     return true
   }
 

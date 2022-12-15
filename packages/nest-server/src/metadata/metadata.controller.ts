@@ -19,4 +19,9 @@ export class MetadataController {
   ) {
     return this.metadataService.getMetadataForSpecificNft(collectionId, tokenId)
   }
+
+  // @Get()
+  // testMetadata() {
+  //   return this.metadataService.uploadMetadataForNft(2, 1)
+  // }
 }
