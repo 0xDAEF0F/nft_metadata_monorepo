@@ -23,7 +23,7 @@ describe('DummyService', () => {
   it('should provide a root for some leave nodes', () => {
     const rootHash = service.computeRoot(inviteList)
     expect(rootHash).toEqual(
-      '0x0c1f9c134381319ef35ad7fd3f667ad0113f14a90c5f65c9ebee9f1ec952380f',
+      '0xd4d95031fa5d53177eb9ff9b1188a4b92160b497e5ff9bdcc04fbe40ebc1765a',
     )
   })
 
@@ -44,9 +44,9 @@ describe('DummyService', () => {
   })
 
   it('should provide a proof given an invite list an an address from that list', () => {
-    const proof = service.getProof(inviteList, inviteList[0])
+    const proof = service.getProof(inviteList, inviteList[1])
     expect(proof).toEqual([
-      '0xf4444058e8b49003d0c4555f4214d701e3731aa3a3601c8ffc3739c168e264a1',
+      '0x874419f5f43a1214f218e7b2508b8bed9a6e615ea3d443da3fb2d06de11dfc95',
     ])
   })
 })

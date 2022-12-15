@@ -5,11 +5,12 @@ import { artifacts } from 'foundry-tk'
 import * as aesjs from 'aes-js'
 import to from 'await-to-js'
 import { z } from 'nestjs-zod/z'
+import { PrismaService } from 'src/prisma.service'
 @Injectable()
 export class CryptoService {
-  private provider
+  private provider: ethers.providers.JsonRpcProvider
 
-  constructor() {
+  constructor(private prismaService: PrismaService) {
     this.provider = new ethers.providers.JsonRpcProvider(
       'http://127.0.0.1:8545',
     )
@@ -52,6 +53,32 @@ export class CryptoService {
     )
     const deployedContract = await factory.deploy()
     return deployedContract.deployTransaction
+  }
+
+  // NOTE: This function will only run in a development environment
+  async fundUsersWallet() {
+    const usersAddresses = await this.prismaService.user.findMany({
+      select: { publicAddress: true },
+    })
+
+    const funderWallet = new ethers.Wallet(
+      process.env.ANVIL_ADDRESS_ONE_PRIVATE_KEY as string,
+    ).connect(this.provider)
+
+    for (let i = 0; i < usersAddresses.length; i++) {
+      const balance = await this.provider.getBalance(
+        usersAddresses[i].publicAddress,
+      )
+
+      if (balance.gte(ethers.utils.parseEther('2'))) continue
+
+      await funderWallet.sendTransaction({
+        to: usersAddresses[i].publicAddress,
+        value: ethers.utils.parseEther('1'),
+      })
+    }
+
+    console.log('all user account funded')
   }
 
   async createERC721Contract(
