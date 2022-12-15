@@ -4,6 +4,7 @@ import { ethers } from 'ethers'
 import { artifacts } from 'foundry-tk'
 import * as aesjs from 'aes-js'
 import to from 'await-to-js'
+import { z } from 'nestjs-zod/z'
 @Injectable()
 export class CryptoService {
   private provider
@@ -53,14 +54,26 @@ export class CryptoService {
     return deployedContract.deployTransaction
   }
 
-  async createERC721Contract(privateKey: string, merkleRoot: string) {
+  async createERC721Contract(
+    privateKey: string,
+    deploymentParameters: z.infer<typeof deploymentParametersSchema>,
+  ) {
+    const { merkleRoot, maxSupply, collectionName, collectionTicker, baseUrl } =
+      deploymentParameters
+
     const factory = new ethers.ContractFactory(
       new ethers.utils.Interface(artifacts.ERC721.abi),
       artifacts.ERC721.bytecode,
       new ethers.Wallet(privateKey).connect(this.provider),
     )
     const [err, contract] = await to(
-      factory.deploy(merkleRoot, 'name', 'symbol'),
+      factory.deploy(
+        merkleRoot,
+        maxSupply,
+        collectionName,
+        collectionTicker,
+        baseUrl,
+      ),
     )
     if (err) {
       console.log(err)
@@ -69,3 +82,12 @@ export class CryptoService {
     return { contractAddress: contract.address }
   }
 }
+
+// TODO: Move this somewhere else
+const deploymentParametersSchema = z.object({
+  merkleRoot: z.string(),
+  maxSupply: z.number(),
+  collectionName: z.string(),
+  collectionTicker: z.string(),
+  baseUrl: z.string(),
+})

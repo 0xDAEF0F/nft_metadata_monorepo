@@ -66,7 +66,7 @@ export class MetadataService {
     })
 
     if (!this.isNftMetadataComplete(nft))
-      throw new BadRequestException('Not all nfts complete')
+      throw new BadRequestException('incomplete metadata')
 
     return this.transformNftToJsonMetadata(nft, nft.collection.name)
   }

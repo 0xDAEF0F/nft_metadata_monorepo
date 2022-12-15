@@ -1,5 +1,6 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common'
+import { Controller, Get, Param, ParseIntPipe, UseGuards } from '@nestjs/common'
 import { MetadataService } from './metadata.service'
+import { NftExistsGuard } from './nft-exists.guard'
 
 @Controller('metadata')
 export class MetadataController {
@@ -13,15 +14,11 @@ export class MetadataController {
   }
 
   @Get(':collectionId/:tokenId')
+  @UseGuards(NftExistsGuard)
   getMetadataForNft(
     @Param('collectionId', ParseIntPipe) collectionId: number,
     @Param('tokenId', ParseIntPipe) tokenId: number,
   ) {
     return this.metadataService.getMetadataForSpecificNft(collectionId, tokenId)
   }
-
-  // @Get()
-  // testMetadata() {
-  //   return this.metadataService.uploadMetadataForNft(2, 1)
-  // }
 }

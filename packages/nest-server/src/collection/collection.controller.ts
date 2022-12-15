@@ -27,6 +27,7 @@ import { WhitelistService } from 'src/whitelist/whitelist.service'
 import { CryptoService } from 'src/crypto/crypto.service'
 import { AuthService } from 'src/auth/auth.service'
 import { CredentialsDto } from 'src/auth/credentials-dto'
+import { MetadataService } from 'src/metadata/metadata.service'
 
 @Controller('collection')
 @UseGuards(JwtAuthGuard)
@@ -37,6 +38,7 @@ export class CollectionController {
     private whitelistService: WhitelistService,
     private authService: AuthService,
     private cryptoService: CryptoService,
+    private metadataService: MetadataService,
   ) {}
 
   @Get('getMany')
@@ -99,16 +101,38 @@ export class CollectionController {
     @Param('collectionId', ParseIntPipe) collectionId: number,
     @Body() credentialsDto: CredentialsDto,
   ) {
-    const { inviteList } =
-      await this.prismaService.collection.findUniqueOrThrow({
-        where: { id: collectionId },
-        select: { inviteList: true },
-      })
+    const {
+      inviteList,
+      Nft: nfts,
+      name: collectionName,
+      _count,
+    } = await this.prismaService.collection.findUniqueOrThrow({
+      where: { id: collectionId },
+      select: {
+        inviteList: true,
+        Nft: true,
+        name: true,
+        _count: true,
+      },
+    })
     if (inviteList.length === 0)
       throw new BadRequestException('No whitelist addresses in collection')
 
+    if (_count.Nft === 0)
+      throw new BadRequestException('zero nfts in collection')
+
+    if (!this.metadataService.isCollectionMetadataComplete(nfts))
+      throw new BadRequestException('one or more nfts with incomplete metadata')
+
     const merkleRoot = this.whitelistService.computeRoot(inviteList)
     const { privateKey } = await this.authService.ejectUser(credentialsDto)
-    return this.cryptoService.createERC721Contract(privateKey, merkleRoot)
+
+    return this.cryptoService.createERC721Contract(privateKey, {
+      merkleRoot,
+      collectionName,
+      collectionTicker: collectionName.slice(0, 3).toUpperCase(),
+      maxSupply: _count.Nft,
+      baseUrl: '',
+    })
   }
 }
