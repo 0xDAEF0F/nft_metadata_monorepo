@@ -17,6 +17,7 @@
   "dependencies": {
     "@prisma/client": "^4.7.1",
     "ethers": "^5.7.2",
+    "wagmi": "^0.7.15",
     "zod": "^3.19.1"
   }
 }

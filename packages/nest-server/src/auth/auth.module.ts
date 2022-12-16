@@ -7,10 +7,12 @@ import { JwtStrategy } from './jwt.strategy'
 import { PrismaService } from 'src/prisma.service'
 import { CryptoService } from 'src/crypto/crypto.service'
 import { AuthController } from './auth.controller'
+import { WagmiModule } from 'src/wagmi/wagmi.module'
 
 @Module({
   imports: [
     PassportModule,
+    WagmiModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET_KEY,
       signOptions: {

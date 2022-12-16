@@ -21,6 +21,8 @@ import { WhitelistService } from './whitelist/whitelist.service'
 import { MetadataService } from './metadata/metadata.service'
 import { MetadataController } from './metadata/metadata.controller'
 import { ConfigModule } from '@nestjs/config'
+import { WagmiModule } from './wagmi/wagmi.module'
+import { WagmiService } from './wagmi/wagmi.service'
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { ConfigModule } from '@nestjs/config'
       envFilePath: ['.env', '.env.development', '.env.development.local'],
       isGlobal: true,
     }),
+    WagmiModule,
   ],
   controllers: [
     AppController,

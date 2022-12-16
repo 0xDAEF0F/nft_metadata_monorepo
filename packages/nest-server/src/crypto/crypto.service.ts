@@ -6,11 +6,15 @@ import * as aesjs from 'aes-js'
 import to from 'await-to-js'
 import { z } from 'nestjs-zod/z'
 import { PrismaService } from 'src/prisma.service'
+import { WagmiService } from 'src/wagmi/wagmi.service'
 @Injectable()
 export class CryptoService {
   private provider: ethers.providers.JsonRpcProvider
 
-  constructor(private prismaService: PrismaService) {
+  constructor(
+    private prismaService: PrismaService,
+    private wagmiService: WagmiService,
+  ) {
     this.provider = new ethers.providers.JsonRpcProvider(
       'http://127.0.0.1:8545',
     )
