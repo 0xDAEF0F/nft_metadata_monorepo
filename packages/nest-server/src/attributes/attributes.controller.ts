@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
+import { CollectionAlreadyDeployedGuard } from 'src/collection/collection-already-deployed.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
 import { AttributesService } from './attributes.service'
 
@@ -19,7 +20,7 @@ export class AttributesController {
   constructor(private attributesService: AttributesService) {}
 
   @Post('batch/:collectionId')
-  @UseGuards(UserOwnsCollection)
+  @UseGuards(UserOwnsCollection, CollectionAlreadyDeployedGuard)
   @UseInterceptors(FileInterceptor('file'))
   async batchCreateNftAttributes(
     @UploadedFile(

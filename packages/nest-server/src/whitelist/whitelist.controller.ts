@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common'
 import { keccak256 } from 'ethers/lib/utils'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
+import { CollectionAlreadyDeployedGuard } from 'src/collection/collection-already-deployed.guard'
 import { CollectionExistsGuard } from 'src/collection/collection-exists.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
@@ -27,7 +28,11 @@ export class WhitelistController {
   ) {}
 
   @Post('invite/:collectionId')
-  @UseGuards(CollectionExistsGuard, UserOwnsCollection)
+  @UseGuards(
+    CollectionExistsGuard,
+    UserOwnsCollection,
+    CollectionAlreadyDeployedGuard,
+  )
   inviteAddress(
     @Param('collectionId', ParseIntPipe) collectionId: number,
     @Body() body: WhiteListDto,

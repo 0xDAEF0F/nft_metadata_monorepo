@@ -29,6 +29,7 @@ import { AuthService } from 'src/auth/auth.service'
 import { CredentialsDto } from 'src/auth/credentials-dto'
 import { MetadataService } from 'src/metadata/metadata.service'
 import { ConfigService } from '@nestjs/config'
+import { CollectionAlreadyDeployedGuard } from './collection-already-deployed.guard'
 
 @Controller('collection')
 @UseGuards(JwtAuthGuard)
@@ -65,7 +66,7 @@ export class CollectionController {
   }
 
   @Put('edit/:collectionId')
-  @UseGuards(UserOwnsCollection)
+  @UseGuards(UserOwnsCollection, CollectionAlreadyDeployedGuard)
   async editCollection(
     @Param('collectionId', ParseIntPipe) collectionId: number,
     @Body() editCollectionDto: EditCollectionDto,
@@ -77,7 +78,7 @@ export class CollectionController {
   }
 
   @Delete('delete/:collectionId')
-  @UseGuards(UserOwnsCollection)
+  @UseGuards(UserOwnsCollection, CollectionAlreadyDeployedGuard)
   @UseInterceptors(DeleteCollectionImagesInterceptor)
   async deleteCollection(
     @Param('collectionId', ParseIntPipe) collectionId: number,
@@ -98,7 +99,7 @@ export class CollectionController {
   }
 
   @Post('deploy/:collectionId')
-  @UseGuards(UserOwnsCollection)
+  @UseGuards(UserOwnsCollection, CollectionAlreadyDeployedGuard)
   async deployCollection(
     @Param('collectionId', ParseIntPipe) collectionId: number,
     @Body() credentialsDto: CredentialsDto,

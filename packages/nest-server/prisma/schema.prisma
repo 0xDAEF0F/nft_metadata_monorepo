@@ -22,7 +22,8 @@ model Collection {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   deployed    Boolean  @default(false)
-  standard    Standard @default(ERC1155)
+  standard    Standard @default(ERC721)
+  network     Network  @default(MAINNET)
   inviteList  String[]
   description String?
   image       String?
@@ -53,4 +54,11 @@ model Nft {
 enum Standard {
   ERC1155
   ERC721
+}
+
+enum Network {
+  /// chain: 1 
+  MAINNET
+  /// chain: 31337
+  LOCALHOST
 }
