@@ -10,7 +10,13 @@ const ErcStandard = {
 const CreateCollectionSchema = z.object({
   name: z.string().min(3),
   description: z.string().optional(),
-  externalUrl: z.string().refine(validator.isURL, 'Invalid Url').optional(),
+  externalUrl: z
+    .string()
+    .optional()
+    .refine((url) => {
+      if (!url) return true
+      return validator.isURL(url)
+    }, 'Invalid Url'),
   image: z.string().refine(validator.isURL, 'Invalid Url').optional(),
   standard: z.nativeEnum(ErcStandard).optional(),
 })

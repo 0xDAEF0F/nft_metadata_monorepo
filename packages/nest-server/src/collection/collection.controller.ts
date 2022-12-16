@@ -20,7 +20,6 @@ import { CollectionDto, EditCollectionDto } from './collection-dto'
 import { CollectionService } from './collection.service'
 import { User } from './user.decorator'
 import { DeleteCollectionImagesInterceptor } from './delete-collection-images.interceptor'
-import to from 'await-to-js'
 import { CollectionExistsGuard } from './collection-exists.guard'
 import { QueryDto } from 'src/nft/nft-dto'
 import { WhitelistService } from 'src/whitelist/whitelist.service'
@@ -30,6 +29,7 @@ import { CredentialsDto } from 'src/auth/credentials-dto'
 import { MetadataService } from 'src/metadata/metadata.service'
 import { ConfigService } from '@nestjs/config'
 import { CollectionAlreadyDeployedGuard } from './collection-already-deployed.guard'
+import to from 'await-to-js'
 
 @Controller('collection')
 @UseGuards(JwtAuthGuard)
