@@ -49,6 +49,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const name = formData.get('name')
     const description = formData.get('description')
     const externalUrl = formData.get('company-website')
+    const network = formData.get('network')
     const updateResponse = await fetch(
       `${process.env.API_BASE_URL}/collection/edit/${params.collectionId}`,
       {
@@ -57,7 +58,7 @@ export const action: ActionFunction = async ({ request, params }) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${jwt}`,
         },
-        body: JSON.stringify({ name, description, externalUrl }),
+        body: JSON.stringify({ name, description, externalUrl, network }),
       },
     )
     if (updateResponse.ok)
