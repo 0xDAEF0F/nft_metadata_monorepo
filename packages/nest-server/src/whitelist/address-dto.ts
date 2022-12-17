@@ -18,3 +18,12 @@ const WhiteListSchema = z.object({
 })
 
 export class WhiteListDto extends createZodDto(WhiteListSchema) {}
+export class InviteOneAddressDto extends createZodDto(
+  z.object({
+    address: z
+      .string()
+      .transform(toLower)
+      .transform(getAddress)
+      .refine(isAddress, 'invalid ethereum address'),
+  }),
+) {}

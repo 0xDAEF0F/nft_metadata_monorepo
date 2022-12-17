@@ -15,7 +15,7 @@ import { CollectionAlreadyDeployedGuard } from 'src/collection/collection-alread
 import { CollectionExistsGuard } from 'src/collection/collection-exists.guard'
 import { UserOwnsCollection } from 'src/collection/user-owns-collection.guard'
 import { PrismaService } from 'src/prisma.service'
-import { WhiteListDto } from './address-dto'
+import { InviteOneAddressDto, WhiteListDto } from './address-dto'
 import { MerkleQueryDto } from './merkleParams-dto'
 import { WhitelistService } from './whitelist.service'
 
@@ -42,6 +42,44 @@ export class WhitelistController {
       data: {
         inviteList: body.inviteList,
       },
+      select: { inviteList: true },
+    })
+  }
+
+  @Post('invite-one/:collectionId')
+  @UseGuards(
+    CollectionExistsGuard,
+    UserOwnsCollection,
+    CollectionAlreadyDeployedGuard,
+  )
+  async inviteOneAddress(
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+    @Body() body: InviteOneAddressDto,
+  ) {
+    const collection = await this.prismaService.collection.findUniqueOrThrow({
+      where: { id: collectionId },
+      select: { inviteList: true },
+    })
+
+    if (collection.inviteList.indexOf(body.address) !== -1)
+      return { inviteList: collection.inviteList }
+
+    return this.prismaService.collection.update({
+      where: { id: collectionId },
+      data: {
+        inviteList: {
+          push: body.address,
+        },
+      },
+      select: { inviteList: true },
+    })
+  }
+
+  @Get(':collectionId')
+  @UseGuards(CollectionExistsGuard, UserOwnsCollection)
+  getWhitelist(@Param('collectionId', ParseIntPipe) collectionId: number) {
+    return this.prismaService.collection.findUniqueOrThrow({
+      where: { id: collectionId },
       select: { inviteList: true },
     })
   }
