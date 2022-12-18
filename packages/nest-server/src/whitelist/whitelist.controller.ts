@@ -75,6 +75,37 @@ export class WhitelistController {
     })
   }
 
+  @Post('remove-one/:collectionId')
+  @UseGuards(
+    CollectionExistsGuard,
+    UserOwnsCollection,
+    CollectionAlreadyDeployedGuard,
+  )
+  async removeOneAddress(
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+    @Body() body: InviteOneAddressDto,
+  ) {
+    const collection = await this.prismaService.collection.findUniqueOrThrow({
+      where: { id: collectionId },
+      select: { inviteList: true },
+    })
+
+    if (collection.inviteList.indexOf(body.address) === -1)
+      throw new BadRequestException('address not invited')
+
+    return this.prismaService.collection.update({
+      where: { id: collectionId },
+      data: {
+        inviteList: {
+          set: collection.inviteList.filter(
+            (address) => address !== body.address,
+          ),
+        },
+      },
+      select: { inviteList: true },
+    })
+  }
+
   @Get(':collectionId')
   @UseGuards(CollectionExistsGuard, UserOwnsCollection)
   getWhitelist(@Param('collectionId', ParseIntPipe) collectionId: number) {
