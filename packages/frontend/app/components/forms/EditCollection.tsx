@@ -12,7 +12,7 @@ export function EditCollection({
     <form
       method='post'
       action={`/collections/${params.collectionId}?index`}
-      className='block w-3/4 space-y-4 rounded-lg bg-white p-6 shadow-lg'>
+      className='block w-1/2 space-y-4 rounded-lg bg-white p-6 shadow-lg'>
       {/* Collection Name */}
       <div>
         <label
