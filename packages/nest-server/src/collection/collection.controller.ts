@@ -130,16 +130,26 @@ export class CollectionController {
     const merkleRoot = this.whitelistService.computeRoot(inviteList)
     const { privateKey } = await this.authService.ejectUser(credentialsDto)
 
-    return this.cryptoService.createERC721Contract(privateKey, {
-      merkleRoot,
-      collectionName,
-      collectionTicker: collectionName.slice(0, 3).toUpperCase(),
-      maxSupply: _count.Nft,
-      baseUrl:
-        this.configService.getOrThrow<string>('API_BASE_URL') +
-        'metadata/' +
-        collectionId +
-        '/',
+    const { contractAddress } = await this.cryptoService.createERC721Contract(
+      privateKey,
+      {
+        merkleRoot,
+        collectionName,
+        collectionTicker: collectionName.slice(0, 3).toUpperCase(),
+        maxSupply: _count.Nft,
+        baseUrl:
+          this.configService.getOrThrow<string>('API_BASE_URL') +
+          'metadata/' +
+          collectionId +
+          '/',
+      },
+    )
+
+    await this.prismaService.collection.update({
+      where: { id: collectionId },
+      data: { contractAddress, deployed: true },
     })
+
+    return { contractAddress }
   }
 }
