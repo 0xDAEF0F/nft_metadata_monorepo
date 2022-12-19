@@ -2,7 +2,6 @@ import { redirect, json, fetch, createCookie } from '@remix-run/node'
 import { Link, useActionData } from '@remix-run/react'
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import type { ZodIssue } from 'zod'
-import { extractJwt } from '~/lib/helpers'
 
 type ActionData = {
   formError?: string
@@ -13,7 +12,7 @@ type ActionData = {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const jwt = await extractJwt(request)
+  const jwt = await createCookie('jwt').parse(request.headers.get('Cookie'))
   if (jwt) return redirect('/dashboard')
   return null
 }

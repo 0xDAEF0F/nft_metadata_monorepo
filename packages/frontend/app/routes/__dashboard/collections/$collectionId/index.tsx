@@ -1,6 +1,6 @@
 import { json, redirect } from '@remix-run/node'
 import { useActionData, useLoaderData, useParams } from '@remix-run/react'
-import { extractJwt, fetchWithJwt } from '~/lib/helpers'
+import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import { EditCollection } from '~/components/forms/EditCollection'
 import { Dialog, Transition } from '@headlessui/react'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
@@ -9,21 +9,22 @@ import { useState, Fragment } from 'react'
 import cx from 'classnames'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const jwt = await extractJwt(request)
-  if (!jwt) return redirect('/login')
+  const jwt = await requireJwt(request)
 
   const collectionResponse = await fetchWithJwt(
     `/collection/${params.collectionId}`,
     jwt,
   )
+
+  if (!collectionResponse.ok) return redirect('/collections')
+
   const collectionData = await collectionResponse.json()
 
   return json({ collection: collectionData })
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const jwt = await extractJwt(request)
-  if (!jwt) return redirect('/login')
+  const jwt = await requireJwt(request)
 
   const formData = await request.formData()
   const intent = formData.get('intent')
@@ -97,7 +98,7 @@ export default function Index() {
   const params = useParams()
   const loaderData = useLoaderData<{ collection: Collection }>()
   const actionData = useActionData()
-  const [openCredentialsModal, setOpenCredentialsModal] = useState(true)
+  const [openCredentialsModal, setOpenCredentialsModal] = useState(false)
 
   console.log({ actionData })
 

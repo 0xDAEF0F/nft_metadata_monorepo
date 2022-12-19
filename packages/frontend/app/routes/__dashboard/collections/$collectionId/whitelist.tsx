@@ -1,5 +1,5 @@
-import { json, redirect } from '@remix-run/node'
-import { extractJwt } from '~/lib/helpers'
+import { json } from '@remix-run/node'
+import { requireJwt } from '~/lib/helpers'
 import { useActionData, useParams, useLoaderData } from '@remix-run/react'
 import { fetchWithJwt } from '~/lib/helpers'
 import { formatEthAddress } from 'eth-address'
@@ -7,8 +7,7 @@ import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import { XMarkIcon } from '@heroicons/react/20/solid'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const jwt = await extractJwt(request)
-  if (!jwt) return redirect('/login')
+  const jwt = await requireJwt(request)
 
   const res = await fetchWithJwt(`/whitelist/${params.collectionId}`, jwt)
   const data = await res.json()
@@ -17,8 +16,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const jwt = await extractJwt(request)
-  if (!jwt) redirect('/login')
+  const jwt = await requireJwt(request)
 
   const formData = await request.formData()
   const intent = formData.get('intent')

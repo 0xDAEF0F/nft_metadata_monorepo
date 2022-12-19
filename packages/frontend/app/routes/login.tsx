@@ -1,12 +1,10 @@
 import { redirect, json, fetch, createCookie } from '@remix-run/node'
 import { Link, useActionData } from '@remix-run/react'
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
-import { extractJwt } from '~/lib/helpers'
+import { requireJwt } from '~/lib/helpers'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const jwt = await extractJwt(request)
-  if (jwt) return redirect('/dashboard')
-  return null
+  await requireJwt(request)
 }
 
 export const action: ActionFunction = async ({ request }) => {

@@ -1,18 +1,17 @@
 import { json, redirect } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { EmptyCollectionCard } from '~/components/cards/EmptyCollectionCard'
-import { extractJwt, fetchWithJwt } from '~/lib/helpers'
+import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { Collection } from '@prisma/client'
 import type { ZodIssue } from 'zod'
 
 export const action: ActionFunction = async ({ request }) => {
+  const jwt = await requireJwt(request)
   const form = await request.formData()
   const name = form.get('name')
-  const jwt = await extractJwt(request)
 
   if (!name) return json({ formError: 'Name is required' }, { status: 400 })
-  if (!jwt) return redirect('/login')
 
   const res = await fetch(process.env.API_BASE_URL + '/collection/create', {
     method: 'POST',
@@ -44,8 +43,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const jwt = await extractJwt(request)
-  if (!jwt) return redirect('/login')
+  const jwt = await requireJwt(request)
 
   const res = await fetchWithJwt('/collection/getMany', jwt)
 

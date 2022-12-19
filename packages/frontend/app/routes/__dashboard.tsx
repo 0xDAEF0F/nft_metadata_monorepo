@@ -1,14 +1,13 @@
 import { Outlet, useLocation, useLoaderData, Link } from '@remix-run/react'
 import { HomeIcon, RectangleGroupIcon } from '@heroicons/react/20/solid'
-import { redirect, json } from '@remix-run/node'
-import { extractJwt, fetchWithJwt } from '~/lib/helpers'
+import { json } from '@remix-run/node'
+import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import Blockies from 'react-blockies'
 import cx from 'classnames'
 import type { LoaderFunction } from '@remix-run/node'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const jwt = await extractJwt(request)
-  if (!jwt) return redirect('/login')
+  const jwt = await requireJwt(request)
 
   const userRequest = await fetchWithJwt('/auth/whoami', jwt)
   const userData = await userRequest.json()

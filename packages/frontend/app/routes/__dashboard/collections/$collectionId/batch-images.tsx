@@ -1,11 +1,10 @@
-import { json, redirect } from '@remix-run/node'
-import { extractJwt } from '~/lib/helpers'
+import { json } from '@remix-run/node'
+import { requireJwt } from '~/lib/helpers'
 import { useActionData, useParams } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const jwt = await extractJwt(request)
-  if (!jwt) redirect('/login')
+  const jwt = await requireJwt(request)
 
   const res = await fetch(
     process.env.API_BASE_URL + `/image/batch/${params.collectionId}`,

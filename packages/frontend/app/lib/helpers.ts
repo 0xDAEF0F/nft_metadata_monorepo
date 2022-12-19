@@ -1,7 +1,9 @@
-import { createCookie } from '@remix-run/node'
+import { createCookie, redirect } from '@remix-run/node'
 
-export function extractJwt(request: Request): Promise<null | string> {
-  return createCookie('jwt').parse(request.headers.get('Cookie'))
+export async function requireJwt(request: Request) {
+  const jwt = await createCookie('jwt').parse(request.headers.get('Cookie'))
+  if (!jwt) throw redirect('/login')
+  return jwt as string
 }
 
 export function fetchWithJwt(

@@ -2,7 +2,7 @@ import { useState, Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData } from '@remix-run/react'
-import { extractJwt, fetchWithJwt } from '~/lib/helpers'
+import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import { formatEthAddress } from 'eth-address'
 import { BookOpenIcon, ClipboardIcon } from '@heroicons/react/24/outline'
 import { SuccessNotification } from '~/components/popovers/SuccessNotification'
@@ -11,8 +11,7 @@ import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { User } from '@prisma/client'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const jwt = await extractJwt(request)
-  if (!jwt) return redirect('/login')
+  const jwt = await requireJwt(request)
 
   const res = await fetchWithJwt('/auth/whoami', jwt)
   if (!res.ok) return redirect('/login')
@@ -22,13 +21,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export const action: ActionFunction = async ({ request }) => {
+  const jwt = await requireJwt(request)
   const form = await request.formData()
   const username = form.get('username')
   const password = form.get('password')
-  const jwt = await extractJwt(request)
 
   if (!username || !password) return json({ formError: 'Missing fields' })
-  if (!jwt) return redirect('/login')
 
   const res = await fetch(process.env.API_BASE_URL + '/auth/eject-pk', {
     method: 'POST',
