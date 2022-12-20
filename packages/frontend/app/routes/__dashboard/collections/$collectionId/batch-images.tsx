@@ -1,5 +1,6 @@
 import { json } from '@remix-run/node'
 import { requireJwt } from '~/lib/helpers'
+import type { BadRequestException } from '~/lib/helpers'
 import { useActionData, useParams } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 
@@ -24,7 +25,6 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function BatchImages() {
   const { collectionId } = useParams()
   const actionData = useActionData()
-  console.log({ actionData })
 
   return (
     <>
