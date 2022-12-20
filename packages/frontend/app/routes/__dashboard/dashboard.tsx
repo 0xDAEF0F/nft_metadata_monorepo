@@ -5,7 +5,7 @@ import { useLoaderData, useActionData } from '@remix-run/react'
 import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import { formatEthAddress } from 'eth-address'
 import { BookOpenIcon, ClipboardIcon } from '@heroicons/react/24/outline'
-import { SuccessNotification } from '~/components/popovers/SuccessNotification'
+import { Notification } from '~/components/popovers/Notification'
 import cx from 'classnames'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { User } from '@prisma/client'
@@ -61,10 +61,11 @@ function Index() {
 
   return (
     <div className='ml-16'>
-      <SuccessNotification
+      <Notification
         show={showSuccessCopyAddress}
         setShow={setShowSuccessCopyAddress}
         data={{
+          type: 'success',
           header: 'Success!',
           description: `address ${formatEthAddress(
             loaderData.publicAddress,

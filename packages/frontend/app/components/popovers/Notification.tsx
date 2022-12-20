@@ -1,16 +1,16 @@
 import { Fragment } from 'react'
 import { Transition } from '@headlessui/react'
 import { CheckCircleIcon } from '@heroicons/react/24/outline'
-import { XMarkIcon } from '@heroicons/react/20/solid'
+import { XCircleIcon, XMarkIcon } from '@heroicons/react/20/solid'
 
-export function SuccessNotification({
+export function Notification({
   show,
   setShow,
   data,
 }: {
   show: boolean
   setShow: (show: boolean) => void
-  data: { header: string; description: string }
+  data: { header: string; description: string; type: 'success' | 'error' }
 }) {
   return (
     <>
@@ -33,10 +33,18 @@ export function SuccessNotification({
               <div className='p-4'>
                 <div className='flex items-start'>
                   <div className='flex-shrink-0'>
-                    <CheckCircleIcon
-                      className='h-6 w-6 text-green-400'
-                      aria-hidden='true'
-                    />
+                    {data.type === 'success' && (
+                      <CheckCircleIcon
+                        className='h-6 w-6 text-green-400'
+                        aria-hidden='true'
+                      />
+                    )}
+                    {data.type === 'error' && (
+                      <XCircleIcon
+                        className='h-6 w-6 text-red-500'
+                        aria-hidden='true'
+                      />
+                    )}
                   </div>
                   <div className='ml-3 w-0 flex-1 pt-0.5'>
                     <p className='text-sm font-medium text-gray-900'>
