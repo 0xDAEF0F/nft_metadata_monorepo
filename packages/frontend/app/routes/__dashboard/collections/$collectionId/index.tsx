@@ -100,7 +100,7 @@ export default function Index() {
   const actionData = useActionData()
   const [openCredentialsModal, setOpenCredentialsModal] = useState(false)
 
-  console.log({ actionData })
+  console.log({ actionData, loaderData })
 
   return (
     <>

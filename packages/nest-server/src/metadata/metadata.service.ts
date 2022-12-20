@@ -75,6 +75,11 @@ export class MetadataService {
     return nfts.every(this.isNftMetadataComplete)
   }
 
+  isCollectionNumberedCorrectly(nfts: Nft[]) {
+    const idWithIndex = nfts.map((a, i) => [a.tokenId, i])
+    return idWithIndex.every(([tokenId, index]) => tokenId === index)
+  }
+
   isNftMetadataComplete(nft: Nft) {
     if (!nft.attributes) return false
     if (!nft.image) return false

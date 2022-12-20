@@ -127,6 +127,9 @@ export class CollectionController {
     if (!this.metadataService.isCollectionMetadataComplete(nfts))
       throw new BadRequestException('one or more nfts with incomplete metadata')
 
+    if (!this.metadataService.isCollectionNumberedCorrectly(nfts))
+      throw new BadRequestException('nfts not ordered correctly')
+
     const merkleRoot = this.whitelistService.computeRoot(inviteList)
     const { privateKey } = await this.authService.ejectUser(credentialsDto)
 

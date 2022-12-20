@@ -32,6 +32,7 @@ export class AttributesController {
     @Param('collectionId', ParseIntPipe) collectionId: number,
   ) {
     const records = this.attributesService.transformFileToRecords(file.buffer)
+
     const partialNfts =
       this.attributesService.transformRecordsToPartialNfts(records)
 
