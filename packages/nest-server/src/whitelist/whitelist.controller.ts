@@ -121,12 +121,13 @@ export class WhitelistController {
     @Param('collectionId', ParseIntPipe) collectionId: number,
     @Query() { address }: MerkleQueryDto,
   ) {
-    const { deployed, inviteList } =
+    const { contractAddress, inviteList } =
       await this.prismaService.collection.findUniqueOrThrow({
         where: { id: collectionId },
-        select: { deployed: true, inviteList: true },
+        select: { contractAddress: true, inviteList: true },
       })
-    if (!deployed) throw new BadRequestException('collection not yet deployed')
+    if (!contractAddress)
+      throw new BadRequestException('collection not yet deployed')
 
     if (inviteList.length === 0) throw new BadRequestException('no invite list')
 

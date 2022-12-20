@@ -17,10 +17,10 @@ export class CollectionAlreadyDeployedGuard implements CanActivate {
       where: {
         id: +collectionId,
       },
-      select: { deployed: true },
+      select: { contractAddress: true },
     })
 
-    if (!collection || collection.deployed)
+    if (!collection || collection.contractAddress)
       throw new BadRequestException('collection already deployed')
 
     return true

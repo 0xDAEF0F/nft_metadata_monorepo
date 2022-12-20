@@ -107,7 +107,7 @@ export default function Index() {
       <div className='my-5 justify-center'>
         <div className='ml-5 flex'>
           <EditCollection collection={loaderData.collection} />
-          {!loaderData.collection.deployed && (
+          {!loaderData.collection.contractAddress && (
             <div className='ml-5 h-fit w-1/3 rounded-lg bg-white p-6 shadow-sm'>
               <p className='block text-sm font-medium text-gray-700'>
                 Deploy Collection

@@ -21,7 +21,6 @@ model User {
 model Collection {
   id              Int      @id @default(autoincrement())
   name            String   @unique
-  deployed        Boolean  @default(false)
   standard        Standard @default(ERC721)
   network         Network  @default(MAINNET)
   inviteList      String[]

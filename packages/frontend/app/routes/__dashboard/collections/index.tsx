@@ -70,7 +70,7 @@ export default function Collections() {
                 {item.standard}
               </p>
               <p className='text-xs lowercase'>{item.network}</p>
-              {item.deployed && (
+              {item.contractAddress && (
                 <p className='mt-1 text-xs uppercase'>deployed</p>
               )}
             </div>

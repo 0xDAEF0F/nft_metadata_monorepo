@@ -147,7 +147,7 @@ export class CollectionController {
 
     await this.prismaService.collection.update({
       where: { id: collectionId },
-      data: { contractAddress, deployed: true },
+      data: { contractAddress },
     })
 
     return { contractAddress }
