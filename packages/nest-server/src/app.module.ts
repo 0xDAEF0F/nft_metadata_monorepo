@@ -21,7 +21,6 @@ import { WhitelistService } from './whitelist/whitelist.service'
 import { MetadataService } from './metadata/metadata.service'
 import { MetadataController } from './metadata/metadata.controller'
 import { ConfigModule } from '@nestjs/config'
-import { WagmiModule } from './wagmi/wagmi.module'
 import { WagmiService } from './wagmi/wagmi.service'
 
 @Module({
@@ -40,7 +39,6 @@ import { WagmiService } from './wagmi/wagmi.service'
       envFilePath: ['.env', '.env.development', '.env.development.local'],
       isGlobal: true,
     }),
-    WagmiModule,
   ],
   controllers: [
     AppController,
@@ -52,6 +50,7 @@ import { WagmiService } from './wagmi/wagmi.service'
     MetadataController,
   ],
   providers: [
+    WagmiService,
     CryptoService,
     PrismaService,
     { provide: APP_PIPE, useClass: ZodValidationPipe },

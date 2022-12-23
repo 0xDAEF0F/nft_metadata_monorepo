@@ -7,13 +7,11 @@ import { match } from 'ts-pattern'
 
 @Injectable()
 export class WagmiService {
-  constructor(private configService: ConfigService) {}
+  public wagmiClient = createClient({ provider: this.initializeProvider() })
+  public provider: ReturnType<typeof this.initializeProvider>
 
-  private wagmiClient = createClient({ provider: this.getProvider() })
-
-  getWagmiClient() {
-    this.wagmiClient.getProvider()
-    return this.wagmiClient
+  constructor(private configService: ConfigService) {
+    this.provider = this.initializeProvider()
   }
 
   getChainIdFromName(name: Network) {
@@ -30,23 +28,23 @@ export class WagmiService {
   getHttpUrlForRpc(chain: Chain) {
     switch (chain.id) {
       case 1:
-        return this.configService.getOrThrow('ALCHEMY_RPC_URL_MAINNET')
+        return this.configService.getOrThrow<string>('ALCHEMY_RPC_URL_MAINNET')
       case 137:
-        return this.configService.getOrThrow('ALCHEMY_RPC_URL_POLYGON')
+        return this.configService.getOrThrow<string>('ALCHEMY_RPC_URL_POLYGON')
       case 42161:
-        return this.configService.getOrThrow('ALCHEMY_RPC_URL_ARBITRUM')
+        return this.configService.getOrThrow<string>('ALCHEMY_RPC_URL_ARBITRUM')
       case 10:
-        return this.configService.getOrThrow('ALCHEMY_RPC_URL_OPTIMISM')
+        return this.configService.getOrThrow<string>('ALCHEMY_RPC_URL_OPTIMISM')
       case 5:
-        return this.configService.getOrThrow('ALCHEMY_RPC_URL_GOERLI')
+        return this.configService.getOrThrow<string>('ALCHEMY_RPC_URL_GOERLI')
       case 31337:
-        return this.configService.getOrThrow('LOCAL_RPC_URL_LOCALHOST')
+        return this.configService.getOrThrow<string>('LOCAL_RPC_URL_LOCALHOST')
       default:
-        throw new Error()
+        return this.configService.getOrThrow<string>('LOCAL_RPC_URL_LOCALHOST')
     }
   }
 
-  private getProvider() {
+  private initializeProvider() {
     const { provider } = configureChains(
       [
         chain.mainnet,
@@ -54,12 +52,12 @@ export class WagmiService {
         chain.arbitrum,
         chain.optimism,
         // testnets
-        chain.localhost,
+        chain.foundry,
         chain.goerli,
       ],
       [
         jsonRpcProvider({
-          rpc: this.getHttpUrlForRpc,
+          rpc: (chain) => ({ http: this.getHttpUrlForRpc(chain) }),
         }),
       ],
     )

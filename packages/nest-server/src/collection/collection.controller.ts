@@ -108,12 +108,14 @@ export class CollectionController {
       inviteList,
       Nft: nfts,
       name: collectionName,
+      network,
       _count,
     } = await this.prismaService.collection.findUniqueOrThrow({
       where: { id: collectionId },
       select: {
         inviteList: true,
         Nft: true,
+        network: true,
         name: true,
         _count: true,
       },
@@ -140,6 +142,7 @@ export class CollectionController {
         collectionName,
         collectionTicker: collectionName.slice(0, 3).toUpperCase(),
         maxSupply: _count.Nft,
+        network,
         baseUrl:
           this.configService.getOrThrow<string>('API_BASE_URL') +
           'metadata/' +

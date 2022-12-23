@@ -7,13 +7,14 @@ import to from 'await-to-js'
 import { z } from 'nestjs-zod/z'
 import { PrismaService } from 'src/prisma.service'
 import { WagmiService } from 'src/wagmi/wagmi.service'
-import { fetchBalance } from 'wagmi/actions'
 import { Network } from '@prisma/client'
+import { ConfigService } from '@nestjs/config'
 @Injectable()
 export class CryptoService {
   constructor(
     private prismaService: PrismaService,
     private wagmiService: WagmiService,
+    private configService: ConfigService,
   ) {}
 
   async deriveKeyFromHumanReadablePassword(password: string) {
@@ -58,15 +59,14 @@ export class CryptoService {
       network,
     } = deploymentParameters
 
-    const wagmiClient = this.wagmiService.getWagmiClient()
-    const provider = wagmiClient.getProvider({
-      chainId: this.wagmiService.getChainIdFromName(network),
-    })
-
     const factory = new ethers.ContractFactory(
       new ethers.utils.Interface(artifacts.ERC721.abi),
       artifacts.ERC721.bytecode,
-      new ethers.Wallet(privateKey).connect(provider),
+      new ethers.Wallet(privateKey).connect(
+        this.wagmiService.provider({
+          chainId: this.wagmiService.getChainIdFromName(network),
+        }),
+      ),
     )
     const [err, contract] = await to(
       factory.deploy(
@@ -90,27 +90,22 @@ export class CryptoService {
       select: { publicAddress: true },
     })
 
+    const provider = await this.wagmiService.provider({ chainId: 31337 })
+
     const funderWallet = new ethers.Wallet(
-      process.env.ANVIL_ADDRESS_ONE_PRIVATE_KEY as string,
-    ).connect(
-      this.wagmiService.getWagmiClient().getProvider({
-        chainId: this.wagmiService.getChainIdFromName('LOCALHOST'),
-      }),
-    )
+      this.configService.getOrThrow('ANVIL_ADDRESS_ONE_PRIVATE_KEY'),
+    ).connect(provider)
 
     for (let i = 0; i < usersAddresses.length; i++) {
-      const balance = await fetchBalance({
-        addressOrName: usersAddresses[i].publicAddress,
-      })
+      const balance = await provider.getBalance(usersAddresses[i].publicAddress)
 
-      if (balance.value.gte(ethers.utils.parseEther('1'))) continue
+      if (balance.gte(ethers.utils.parseEther('1'))) continue
 
       await funderWallet.sendTransaction({
         to: usersAddresses[i].publicAddress,
         value: ethers.utils.parseEther('1'),
       })
     }
-
     console.log('all user account funded')
   }
 }
