@@ -57,8 +57,10 @@ enum Standard {
 }
 
 enum Network {
-  /// chain: 1 
-  MAINNET
-  /// chain: 31337
-  LOCALHOST
+  MAINNET /// chainId: 1
+  POLYGON /// chainId: 137
+  ARBITRUM /// chainId: 42161
+  OPTIMISM /// chainId: 10
+  GOERLI /// chainId: 5
+  LOCALHOST /// chainId: 31337
 }

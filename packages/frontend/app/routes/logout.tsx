@@ -5,9 +5,9 @@ import type { ActionFunction } from '@remix-run/node'
 export const action: ActionFunction = async () => {
   return redirect('/login', {
     headers: {
-      'Set-Cookie': await createCookie('jwt', {
+      'Set-Cookie': await createCookie('jwt').serialize('', {
         expires: new Date(Date.now() - 1000),
-      }).serialize(''),
+      }),
     },
   })
 }
