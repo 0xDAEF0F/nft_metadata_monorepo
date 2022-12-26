@@ -4,6 +4,7 @@ import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ConfigService } from '@nestjs/config'
 import { Network } from '@prisma/client'
 import { match } from 'ts-pattern'
+import { concat } from 'lodash'
 
 @Injectable()
 export class WagmiService {
@@ -23,6 +24,27 @@ export class WagmiService {
       .with('GOERLI', () => 5)
       .with('LOCALHOST', () => 31337)
       .exhaustive()
+  }
+
+  getNameFromChainId(id: Chain['id']) {
+    return match(id)
+      .with(1, () => 'Mainnet')
+      .with(137, () => 'Polygon')
+      .with(42161, () => 'Arbitrum')
+      .with(10, () => 'Optimism')
+      .with(5, () => 'Goerli')
+      .with(31337, () => 'Localhost')
+      .otherwise(() => 'Unknown')
+  }
+
+  getAllSupportedChainIds() {
+    const networkIds = [1, 137, 42161, 10]
+    const testNetworkIds = [5, 31337]
+
+    if (this.configService.getOrThrow('NODE_ENV') === 'development')
+      return concat(networkIds, testNetworkIds)
+
+    return networkIds
   }
 
   getHttpUrlForRpc(chain: Chain) {
