@@ -22,6 +22,8 @@ import { MetadataService } from './metadata/metadata.service'
 import { MetadataController } from './metadata/metadata.controller'
 import { ConfigModule } from '@nestjs/config'
 import { WagmiService } from './wagmi/wagmi.service'
+import { BalanceController } from './balance/balance.controller'
+import { BalanceService } from './balance/balance.service'
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { WagmiService } from './wagmi/wagmi.service'
     NftController,
     WhitelistController,
     MetadataController,
+    BalanceController,
   ],
   providers: [
     WagmiService,
@@ -61,6 +64,7 @@ import { WagmiService } from './wagmi/wagmi.service'
     AttributesService,
     WhitelistService,
     MetadataService,
+    BalanceService,
   ],
 })
 export class AppModule {}
