@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id            Int          @id @default(autoincrement())
-  username      String       @unique
-  publicAddress String
-  hPassword     String
-  ePrivateKey   String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  Collection    Collection[]
+  id                         Int          @id @default(autoincrement())
+  username                   String       @unique
+  publicAddress              String
+  arweaveAddress             String
+  arweaveEncryptedPrivateKey String
+  hPassword                  String
+  ePrivateKey                String
+  salt                       String
+  createdAt                  DateTime     @default(now())
+  updatedAt                  DateTime     @updatedAt
+  Collection                 Collection[]
 }
 
 model Collection {
