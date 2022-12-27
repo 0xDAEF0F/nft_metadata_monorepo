@@ -2,10 +2,15 @@ import { Injectable } from '@nestjs/common'
 import { NftImagePayload } from './types'
 import { S3Service } from 'src/s3/s3.service'
 import { PrismaService } from 'src/prisma.service'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class ImageService {
-  constructor(private s3: S3Service, private prismaService: PrismaService) {}
+  constructor(
+    private s3: S3Service,
+    private prismaService: PrismaService,
+    private configService: ConfigService,
+  ) {}
 
   async createOrUpdateNftImage(nftPayload: NftImagePayload) {
     const { collectionId, tokenId, data, imageName } = nftPayload
@@ -22,7 +27,8 @@ export class ImageService {
   }
 
   getAwsImageUrl(collectionId: number, key: string) {
-    const basePath = `https://${this.s3.getBucketName()}.s3.amazonaws.com`
+    const bucketName = this.configService.getOrThrow<string>('AWS_BUCKET_NAME')
+    const basePath = `https://${bucketName}.s3.amazonaws.com`
     return `${basePath}/${collectionId}/${key}`
   }
 }
