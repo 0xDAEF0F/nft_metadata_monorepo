@@ -57,11 +57,20 @@ export default function BatchMetadata() {
             id='file_input'
             className='mb-4 block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-none'
           />
-          <button
-            className='items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
-            type='submit'>
-            Submit
-          </button>
+          <div className='flex justify-between'>
+            <button
+              className='items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+              type='submit'>
+              Submit
+            </button>
+            {actionData && (
+              <div>
+                <p className='text-sm text-red-500'>
+                  {actionData.message || 'Something went wrong'}
+                </p>
+              </div>
+            )}
+          </div>
         </form>
       </div>
       {loaderData.nfts.length > 0 && <NftTable nfts={loaderData.nfts} />}
