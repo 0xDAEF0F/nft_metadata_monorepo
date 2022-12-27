@@ -24,6 +24,7 @@ import { ConfigModule } from '@nestjs/config'
 import { WagmiService } from './wagmi/wagmi.service'
 import { BalanceController } from './balance/balance.controller'
 import { BalanceService } from './balance/balance.service'
+import { ArweaveModule } from './arweave/arweave.module'
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { BalanceService } from './balance/balance.service'
       envFilePath: ['.env', '.env.development', '.env.development.local'],
       isGlobal: true,
     }),
+    ArweaveModule,
   ],
   controllers: [
     AppController,

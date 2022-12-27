@@ -8,6 +8,8 @@ import { PrismaService } from 'src/prisma.service'
 import { CryptoService } from 'src/crypto/crypto.service'
 import { AuthController } from './auth.controller'
 import { WagmiService } from 'src/wagmi/wagmi.service'
+import { ArweaveModule } from 'src/arweave/arweave.module'
+import { ArweaveService } from 'src/arweave/arweave.service'
 
 @Module({
   imports: [
@@ -18,8 +20,10 @@ import { WagmiService } from 'src/wagmi/wagmi.service'
         expiresIn: process.env.PRODUCTION === 'true' ? '1d' : '7d',
       },
     }),
+    ArweaveModule,
   ],
   providers: [
+    ArweaveService,
     AuthService,
     WagmiService,
     LocalStrategy,

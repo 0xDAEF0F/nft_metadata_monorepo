@@ -17,29 +17,35 @@ export class CryptoService {
     private configService: ConfigService,
   ) {}
 
-  async deriveKeyFromHumanReadablePassword(password: string) {
+  async deriveKeyFromHumanReadablePassword(password: string, salt: string) {
     const pass = Buffer.from(password)
-    // TODO: Give each user some salt?
-    const salt = Buffer.from('salt')
     const N = 1024,
       r = 8,
       p = 1,
       dkLen = 32
-    return scrypt(pass, salt, N, r, p, dkLen)
+    return scrypt(pass, Buffer.from(salt), N, r, p, dkLen)
   }
 
-  async encryptEthPrivateKey(privateKey: string, password: string) {
+  async encryptEthPrivateKey(
+    privateKey: string,
+    password: string,
+    salt: string,
+  ) {
     const privateKeyAsBytes = aesjs.utils.utf8.toBytes(privateKey)
-    const dKey = await this.deriveKeyFromHumanReadablePassword(password)
+    const dKey = await this.deriveKeyFromHumanReadablePassword(password, salt)
     const aesCtr = new aesjs.ModeOfOperation.ctr(dKey)
     const encryptedBytes = aesCtr.encrypt(privateKeyAsBytes)
     const encryptedHex = aesjs.utils.hex.fromBytes(encryptedBytes)
     return encryptedHex
   }
 
-  async decryptEthPrivateKey(ePrivateKey: string, password: string) {
+  async decryptEthPrivateKey(
+    ePrivateKey: string,
+    password: string,
+    salt: string,
+  ) {
     const ePrivateKeyAsBytes = aesjs.utils.hex.toBytes(ePrivateKey)
-    const dKey = await this.deriveKeyFromHumanReadablePassword(password)
+    const dKey = await this.deriveKeyFromHumanReadablePassword(password, salt)
     const aesCtr = new aesjs.ModeOfOperation.ctr(dKey)
     const decryptedBytes = aesCtr.decrypt(ePrivateKeyAsBytes)
     const decryptedUtf8 = aesjs.utils.utf8.fromBytes(decryptedBytes)
