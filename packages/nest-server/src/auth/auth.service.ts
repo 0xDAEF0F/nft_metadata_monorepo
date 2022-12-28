@@ -101,7 +101,13 @@ export class AuthService {
       where: { username },
     })
     if (user && compareSync(password, user.hPassword)) {
-      const { hPassword, ePrivateKey, ...result } = user
+      const {
+        hPassword,
+        ePrivateKey,
+        arweaveEncryptedPrivateKey,
+        salt,
+        ...result
+      } = user
       return result
     }
     return null
