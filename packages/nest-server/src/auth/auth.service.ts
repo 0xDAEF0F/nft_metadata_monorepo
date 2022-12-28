@@ -7,6 +7,7 @@ import { CredentialsDto } from './credentials-dto'
 import { CryptoService } from 'src/crypto/crypto.service'
 import { ethers } from 'ethers'
 import { ArweaveService } from 'src/arweave/arweave.service'
+import { JWKInterface } from 'arweave/node/lib/wallet'
 
 @Injectable()
 export class AuthService {
@@ -91,7 +92,7 @@ export class AuthService {
       privateKey,
       publicAddress: user.publicAddress,
       arweaveAddress: user.arweaveAddress,
-      arweavePrivateKey: JSON.parse(privateArKey),
+      arweavePrivateKey: JSON.parse(privateArKey) as JWKInterface,
     }
   }
 

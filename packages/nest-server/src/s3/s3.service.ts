@@ -65,6 +65,20 @@ export class S3Service {
     return objects
   }
 
+  async calculatesBytesSizeFromPrefix(prefix: string) {
+    const objects = await this.listObjectsFromPrefix(prefix)
+    let totalSize = 0
+    for (let i = 0; i < objects.length; i++) {
+      const params: GetObjectCommandInput = {
+        Bucket: this.configService.getOrThrow<string>('AWS_BUCKET_NAME'),
+        Key: objects[i],
+      }
+      const data = await this.s3.send(new GetObjectCommand(params))
+      totalSize += data.ContentLength ?? 0
+    }
+    return totalSize
+  }
+
   async downloadObjectsFromPrefix(prefix: string): Promise<void> {
     const objects = await this.listObjectsFromPrefix(prefix)
 

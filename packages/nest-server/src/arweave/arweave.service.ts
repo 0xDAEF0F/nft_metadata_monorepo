@@ -1,12 +1,18 @@
+import Bundlr from '@bundlr-network/client'
 import { Injectable } from '@nestjs/common'
 import Arweave from 'arweave'
+import { JWKInterface } from 'arweave/node/lib/wallet'
 
 @Injectable()
 export class ArweaveService {
-  arweave: Arweave
+  private arweave: Arweave
 
   constructor() {
-    this.arweave = Arweave.init({})
+    this.arweave = Arweave.init({
+      host: 'arweave.net',
+      port: 443,
+      protocol: 'https',
+    })
   }
 
   generateArweavePrivateKey() {
@@ -22,14 +28,22 @@ export class ArweaveService {
     }
   }
 
-  getArweaveAddressFromPrivateKey(
-    pk: Awaited<ReturnType<typeof this.generateArweavePrivateKey>>,
-  ) {
-    return this.arweave.wallets.jwkToAddress(pk)
+  getArweaveAddressFromPrivateKey(jwk: JWKInterface) {
+    return this.arweave.wallets.jwkToAddress(jwk)
   }
 
   async getArBalanceFromAddress(address: string) {
-    const winstonBalance = await this.arweave.wallets.getBalance(address)
-    return this.arweave.ar.winstonToAr(winstonBalance)
+    return this.arweave.wallets.getBalance(address)
+  }
+
+  async getPriceForNBytes(nBytes: number, jwk: JWKInterface) {
+    const bundlr = new Bundlr('http://node1.bundlr.network', 'arweave', jwk)
+    const price = await bundlr.getPrice(nBytes)
+    return price.toString()
+  }
+
+  uploadFolderToArweave(pathToFolder: string, jwk: JWKInterface) {
+    const bundlr = new Bundlr('http://node1.bundlr.network', 'arweave', jwk)
+    return bundlr.uploadFolder(pathToFolder)
   }
 }
