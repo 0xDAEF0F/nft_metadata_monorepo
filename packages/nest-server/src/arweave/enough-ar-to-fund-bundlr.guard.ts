@@ -40,7 +40,7 @@ export class EnoughArToFundBundlrGuard implements CanActivate {
 
     // console.log({ arBalance, costToUpload, imageBytes })
 
-    if (arBalance >= costToUpload) return true
+    if (arBalance >= costToUpload * 1.03) return true
 
     throw new BadRequestException(
       'Insufficient AR balance in wallet to fund Bundlr',

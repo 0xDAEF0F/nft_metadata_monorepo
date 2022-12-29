@@ -10,6 +10,7 @@ import { tap } from 'rxjs'
 import { AuthService } from 'src/auth/auth.service'
 import { S3Service } from 'src/s3/s3.service'
 import { ArweaveService } from './arweave.service'
+import { BundlrService } from './bundlr.service'
 
 @Injectable()
 export class UploadImagesArweaveInterceptor implements NestInterceptor {
@@ -27,10 +28,10 @@ export class UploadImagesArweaveInterceptor implements NestInterceptor {
         '../../temp',
         collectionId.toString(),
       )
-      const uploadResponse = await this.arweaveService.uploadFolderToArweave(
+      const uploadResponse = await new BundlrService(arJWK).uploadFolder(
         dirPath,
-        arJWK,
       )
+
       if (uploadResponse) console.log('manifest id: ', uploadResponse.id)
     } catch (error) {
       console.log(error)

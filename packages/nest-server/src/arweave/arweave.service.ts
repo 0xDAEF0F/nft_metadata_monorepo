@@ -1,4 +1,3 @@
-import Bundlr from '@bundlr-network/client'
 import { Injectable } from '@nestjs/common'
 import Arweave from 'arweave'
 import { JWKInterface } from 'arweave/node/lib/wallet'
@@ -34,16 +33,5 @@ export class ArweaveService {
 
   async getArBalanceFromAddress(address: string) {
     return this.arweave.wallets.getBalance(address)
-  }
-
-  async getPriceForNBytes(nBytes: number, jwk: JWKInterface) {
-    const bundlr = new Bundlr('http://node1.bundlr.network', 'arweave', jwk)
-    const price = await bundlr.getPrice(nBytes)
-    return price.toString()
-  }
-
-  uploadFolderToArweave(pathToFolder: string, jwk: JWKInterface) {
-    const bundlr = new Bundlr('http://node1.bundlr.network', 'arweave', jwk)
-    return bundlr.uploadFolder(pathToFolder)
   }
 }
