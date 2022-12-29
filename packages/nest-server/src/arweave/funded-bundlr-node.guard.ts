@@ -27,7 +27,7 @@ export class FundedBundlrNodeGuard implements CanActivate {
 
     const bundlr = new BundlrService(arweavePrivateKey)
 
-    const imageBytes = await this.s3Service.calculatesBytesSizeFromPrefix(
+    const imageBytes = await this.s3Service.calculateBytesSizeFromPrefix(
       request.params.collectionId + '/',
     )
 

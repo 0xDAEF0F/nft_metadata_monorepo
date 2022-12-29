@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -18,7 +19,6 @@ import { S3Service } from 'src/s3/s3.service'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { CollectionExistsGuard } from 'src/collection/collection-exists.guard'
 import { ArweaveService } from './arweave.service'
-import { EnoughArToFundBundlrGuard } from './enough-ar-to-fund-bundlr.guard'
 import { CredentialsDto } from 'src/auth/credentials-dto'
 import { AuthService } from 'src/auth/auth.service'
 import { BundlrService } from './bundlr.service'
@@ -56,26 +56,39 @@ export class ArweaveController {
   }
 
   @Post('fund-bundlr/:collectionId')
-  @UseGuards(
-    LocalAuthGuard,
-    UserOwnsCollection,
-    OnlyIfDeployedGuard,
-    EnoughArToFundBundlrGuard,
-  )
+  @UseGuards(LocalAuthGuard, UserOwnsCollection, OnlyIfDeployedGuard)
   async fundBundlr(
     @Body() credentials: CredentialsDto,
     @Param('collectionId', ParseIntPipe) collectionId: number,
   ) {
-    const { arweavePrivateKey } = await this.authService.ejectUser(credentials)
+    const { arweavePrivateKey, arweaveAddress } =
+      await this.authService.ejectUser(credentials)
     const bundlr = new BundlrService(arweavePrivateKey)
-    const bytesInCollection =
-      await this.s3Service.calculatesBytesSizeFromPrefix(`${collectionId}/`)
-    const priceOfCollection = await bundlr.getPrice(bytesInCollection)
 
-    // supply 3% extra to have extra cushion
-    const { id } = await bundlr.fund(
-      priceOfCollection.times(1.03).integerValue(),
+    const bytesInCollection = await this.s3Service.calculateBytesSizeFromPrefix(
+      `${collectionId}/`,
     )
+
+    // account for 10% extra for extra cushion
+    const priceOfCollection = (await bundlr.getPrice(bytesInCollection))
+      .times(1.1)
+      .integerValue()
+    const currentBalanceInBundlr = await bundlr.getLoadedBalance()
+
+    if (currentBalanceInBundlr.gte(priceOfCollection))
+      throw new BadRequestException('nothing to fund. bundlr is funded.')
+
+    const amountRequiredToDeploy = priceOfCollection.minus(
+      currentBalanceInBundlr,
+    )
+
+    if (
+      amountRequiredToDeploy.toNumber() >
+      +(await this.arweaveService.getArBalanceFromAddress(arweaveAddress))
+    )
+      throw new BadRequestException('Insufficient AR funds to fund bundlr')
+
+    const { id } = await bundlr.fund(amountRequiredToDeploy)
 
     return {
       transactionId: id,
@@ -99,7 +112,7 @@ export class ArweaveController {
   async estimateDeployToArweavePriceInWinston(
     @Param('collectionId', ParseIntPipe) collectionId: number,
   ) {
-    const bytesSize = await this.s3Service.calculatesBytesSizeFromPrefix(
+    const bytesSize = await this.s3Service.calculateBytesSizeFromPrefix(
       `${collectionId}/`,
     )
     const priceToDeploy = await new BundlrService().getPrice(bytesSize)

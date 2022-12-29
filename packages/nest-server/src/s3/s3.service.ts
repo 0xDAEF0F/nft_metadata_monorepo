@@ -65,7 +65,7 @@ export class S3Service {
     return objects
   }
 
-  async calculatesBytesSizeFromPrefix(prefix: string) {
+  async calculateBytesSizeFromPrefix(prefix: string) {
     const objects = await this.listObjectsFromPrefix(prefix)
     let totalSize = 0
     for (let i = 0; i < objects.length; i++) {
