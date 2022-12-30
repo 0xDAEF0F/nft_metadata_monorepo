@@ -8,6 +8,7 @@ import { CryptoService } from 'src/crypto/crypto.service'
 import { WagmiService } from 'src/wagmi/wagmi.service'
 import { S3Service } from 'src/s3/s3.service'
 import { ConfigService } from '@nestjs/config'
+import { BundlrService } from './bundlr.service'
 
 @Module({
   providers: [
@@ -19,6 +20,7 @@ import { ConfigService } from '@nestjs/config'
     JwtService,
     CryptoService,
     WagmiService,
+    BundlrService,
   ],
   exports: [ArweaveService],
   controllers: [ArweaveController],
