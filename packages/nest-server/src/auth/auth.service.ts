@@ -6,8 +6,6 @@ import { PrismaService } from 'src/prisma.service'
 import { CredentialsDto } from './credentials-dto'
 import { CryptoService } from 'src/crypto/crypto.service'
 import { ethers } from 'ethers'
-import { ArweaveService } from 'src/arweave/arweave.service'
-import { JWKInterface } from 'arweave/node/lib/wallet'
 
 @Injectable()
 export class AuthService {
@@ -15,7 +13,6 @@ export class AuthService {
     private prismaService: PrismaService,
     private jwtService: JwtService,
     private cryptoService: CryptoService,
-    private arweaveService: ArweaveService,
   ) {}
 
   getUser(id: number) {
@@ -33,9 +30,6 @@ export class AuthService {
     const { username, password } = credentials
     // Ethereum
     const ethersWallet = ethers.Wallet.createRandom()
-    // Arweave
-    const arweaveCredentials =
-      await this.arweaveService.createArweaveCredentials()
     // User Info
     const hPassword = hashSync(password)
     const salt = genSaltSync()
@@ -52,13 +46,6 @@ export class AuthService {
         publicAddress: ethersWallet.address,
         username,
         salt,
-        arweaveAddress: arweaveCredentials.address,
-        arweaveEncryptedPrivateKey:
-          await this.cryptoService.encryptEthPrivateKey(
-            JSON.stringify(arweaveCredentials.privateKey),
-            password,
-            salt,
-          ),
       },
       select: { id: true, username: true },
     })
@@ -76,12 +63,6 @@ export class AuthService {
       where: { username: username },
     })
 
-    const privateArKey = await this.cryptoService.decryptEthPrivateKey(
-      user.arweaveEncryptedPrivateKey,
-      password,
-      user.salt,
-    )
-
     const privateKey = await this.cryptoService.decryptEthPrivateKey(
       user.ePrivateKey,
       password,
@@ -91,8 +72,6 @@ export class AuthService {
     return {
       privateKey,
       publicAddress: user.publicAddress,
-      arweaveAddress: user.arweaveAddress,
-      arweavePrivateKey: JSON.parse(privateArKey) as JWKInterface,
     }
   }
 
@@ -101,13 +80,7 @@ export class AuthService {
       where: { username },
     })
     if (user && compareSync(password, user.hPassword)) {
-      const {
-        hPassword,
-        ePrivateKey,
-        arweaveEncryptedPrivateKey,
-        salt,
-        ...result
-      } = user
+      const { hPassword, ePrivateKey, salt, ...result } = user
       return result
     }
     return null
