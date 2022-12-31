@@ -42,10 +42,6 @@ export class ArweaveController {
     )
     const loadedBalance = await this.bundlrService.getLoadedBalance()
 
-    console.log(this.bundlrService.address)
-
-    // const fund = await this.bundlrService.fund(nativeBalance.times(0.9))
-    // return { fund }
     return { nativeBalance, loadedBalance }
   }
 }

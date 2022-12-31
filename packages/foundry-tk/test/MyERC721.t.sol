@@ -28,6 +28,13 @@ contract MyERC721Test is Test {
     }
 
     function testBaseUri() public {
+        vm.prank(address(0xB0B));
+        myERC721.changeBaseUrl('www.anotherBaseUrl.com/');
+        string memory tokenZeroUri = myERC721.tokenURI(0);
+        assertEq(tokenZeroUri, 'www.anotherBaseUrl.com/0');
+    }
+
+    function testChangeBaseUri() public {
         string memory tokenZeroUri = myERC721.tokenURI(0);
         assertEq(tokenZeroUri, 'www.baseUrl.com/0');
     }
