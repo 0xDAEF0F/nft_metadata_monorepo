@@ -20,6 +20,7 @@
     "classnames": "^2.3.2",
     "eth-address": "^1.0.1",
     "flowbite": "^1.5.5",
+    "flowbite-react": "^0.3.7",
     "isbot": "^3.6.5",
     "react": "^18.2.0",
     "react-blockies": "^1.4.1",
