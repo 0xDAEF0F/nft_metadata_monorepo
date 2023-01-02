@@ -5,9 +5,11 @@ import {
 } from '@nestjs/common'
 import { Nft } from '@prisma/client'
 import to from 'await-to-js'
+import path from 'path'
 import { ImageService } from 'src/nftImage/nftImage.service'
 import { PrismaService } from 'src/prisma.service'
 import { S3Service } from 'src/s3/s3.service'
+import * as fs from 'fs'
 
 @Injectable()
 export class MetadataService {
@@ -84,6 +86,73 @@ export class MetadataService {
     if (!nft.attributes) return false
     if (!nft.image) return false
     return true
+  }
+
+  async downloadMetadataForArweaveUpload(
+    collectionId: number,
+    collectionName: string,
+    imagesTxnId: string,
+  ) {
+    const dirPath = path.resolve(
+      __dirname,
+      '../../temp/metadata',
+      collectionId.toString(),
+    )
+    if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true })
+
+    const { Nft: nfts } = await this.prismaService.collection.findUniqueOrThrow(
+      {
+        where: { id: collectionId },
+        select: { Nft: true },
+      },
+    )
+
+    for (let i = 0; i < nfts.length; i++) {
+      const metadata = this.getNftMetadataWithArweaveUploadResponse(
+        nfts[i],
+        collectionName,
+        imagesTxnId,
+      )
+      fs.writeFileSync(
+        path.join(dirPath, `${nfts[i].tokenId}.json`),
+        JSON.stringify(metadata),
+      )
+    }
+  }
+
+  getNftMetadataWithArweaveUploadResponse(
+    nft: Nft,
+    collectionName: string,
+    arTxnId: string,
+  ) {
+    return {
+      name: `${collectionName} #${nft.tokenId}`,
+      image: `https://arweave.net/${arTxnId}/${this.getImageName(nft)}`,
+      attributes: nft.attributes,
+    }
+  }
+
+  getImageName(nft: Nft) {
+    if (!nft.image) throw new Error('no image thus no extension')
+    const imageName = nft.image.split('/').slice(-1).join()
+    return imageName
+  }
+
+  async setMetadataUrlWithUploadTxn(txnId: string, collectionId: number) {
+    const { Nft: nfts } = await this.prismaService.collection.findUniqueOrThrow(
+      {
+        where: { id: collectionId },
+        select: { Nft: true },
+      },
+    )
+    nfts.forEach(async (nft) => {
+      await this.prismaService.nft.update({
+        where: { collectionId_tokenId: { collectionId, tokenId: nft.tokenId } },
+        data: {
+          metadataUrl: `https://arweave.net/${txnId}/${nft.tokenId}.json`,
+        },
+      })
+    })
   }
 
   transformNftToJsonMetadata(nft: Nft, collectionName: string) {

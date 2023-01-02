@@ -36,6 +36,7 @@ import { ArweaveModule } from './arweave/arweave.module'
           secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET as string,
         },
       }),
+      isGlobal: true,
     }),
     AuthModule,
     ConfigModule.forRoot({

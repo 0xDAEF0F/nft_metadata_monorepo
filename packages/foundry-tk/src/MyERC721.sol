@@ -41,6 +41,10 @@ contract MyERC721 is ERC721, Owned {
         return string(abi.encodePacked(s_baseUrl, id.toString()));
     }
 
+    function changeBaseUrl(string memory baseUrl) public onlyOwner {
+        s_baseUrl = baseUrl;
+    }
+
     function mint(bytes32[] calldata proof) public {
         if (s_counter >= maxSupply) revert MaxSupplyReached();
         if (
