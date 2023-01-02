@@ -92,7 +92,7 @@ export class S3Service {
       const dataByteArray = await data.Body.transformToByteArray()
 
       const collectionId = objects[i].split('/')[0]
-      const dirPath = path.resolve(__dirname, '../../temp', collectionId)
+      const dirPath = path.resolve(__dirname, '../../temp/images', collectionId)
 
       if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true })
 

@@ -9,6 +9,8 @@ import { WagmiService } from 'src/wagmi/wagmi.service'
 import { S3Service } from 'src/s3/s3.service'
 import { ConfigService } from '@nestjs/config'
 import { BundlrService } from './bundlr.service'
+import { MetadataService } from 'src/metadata/metadata.service'
+import { ImageService } from 'src/nftImage/nftImage.service'
 
 @Module({
   providers: [
@@ -21,6 +23,8 @@ import { BundlrService } from './bundlr.service'
     CryptoService,
     WagmiService,
     BundlrService,
+    MetadataService,
+    ImageService,
   ],
   exports: [ArweaveService],
   controllers: [ArweaveController],
