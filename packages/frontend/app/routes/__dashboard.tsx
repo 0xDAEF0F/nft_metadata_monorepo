@@ -1,22 +1,8 @@
-import { Outlet, useLocation, useLoaderData, Link } from '@remix-run/react'
+import { Outlet, useLocation, Link } from '@remix-run/react'
 import { HomeIcon, RectangleGroupIcon } from '@heroicons/react/20/solid'
-import { json } from '@remix-run/node'
-import { fetchWithJwt, requireJwt } from '~/lib/helpers'
-import Blockies from 'react-blockies'
 import cx from 'classnames'
-import type { LoaderFunction } from '@remix-run/node'
-
-export const loader: LoaderFunction = async ({ request }) => {
-  const jwt = await requireJwt(request)
-
-  const userRequest = await fetchWithJwt('/auth/whoami', jwt)
-  const userData = await userRequest.json()
-
-  return json({ address: userData.publicAddress })
-}
 
 export default function Dashboard() {
-  const loaderData = useLoaderData()
   const location = useLocation()
 
   return (
@@ -27,22 +13,18 @@ export default function Dashboard() {
           <Link
             to='/'
             className='inline-flex h-16 w-16 items-center justify-center'>
-            {/* TODO: This blockie is giving a warning (componenWillUpdate) */}
-            <Blockies
-              size={10}
-              seed={loaderData.address}
-              className='rounded-lg'
-            />
+            <img src='/logosm.png' alt='logo' className='h-14 w-8 p-2' />
           </Link>
-
           <div className='border-t border-gray-100'>
             <nav aria-label='Main Nav' className='flex flex-col p-2'>
               <div className='py-4'>
                 <Link
                   to='/dashboard'
                   className={cx(
-                    location.pathname.includes('dashboard') && 'bg-blue-50',
-                    'group relative flex justify-center rounded px-2 py-1.5 text-blue-700',
+                    location.pathname.includes('dashboard')
+                      ? 'bg-gray-200'
+                      : ' hover:bg-gray-100',
+                    'group relative flex justify-center rounded px-2 py-1.5',
                   )}>
                   <HomeIcon
                     width={20}
@@ -58,13 +40,15 @@ export default function Dashboard() {
                   </span>
                 </Link>
               </div>
-              <ul className='space-y-1 border-t border-gray-100 pt-4'>
+              <ul className='space-y-1 border-t border-gray-200 pt-4'>
                 <li>
                   <Link
                     to='/collections'
                     className={cx(
-                      location.pathname.includes('collections') && 'bg-blue-50',
-                      'group relative flex justify-center rounded px-2 py-1.5 text-gray-500 hover:bg-gray-50 hover:text-gray-700',
+                      location.pathname.includes('collections')
+                        ? 'bg-gray-200'
+                        : ' hover:bg-gray-100',
+                      'group relative flex justify-center rounded px-2 py-1.5',
                     )}>
                     <RectangleGroupIcon
                       width={20}
@@ -89,7 +73,7 @@ export default function Dashboard() {
           <form method='POST' action='/logout'>
             <button
               type='submit'
-              className='group relative flex w-full justify-center rounded-lg px-2 py-1.5 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700'>
+              className='group relative flex w-full justify-center rounded-lg px-2 py-1.5 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-700'>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 className='h-5 w-5 opacity-75'

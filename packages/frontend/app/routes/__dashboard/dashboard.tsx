@@ -4,8 +4,10 @@ import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData } from '@remix-run/react'
 import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import { formatEthAddress } from 'eth-address'
-import { BookOpenIcon, ClipboardIcon } from '@heroicons/react/24/outline'
+
 import { Notification } from '~/components/popovers/Notification'
+import Blockies from 'react-blockies'
+
 import cx from 'classnames'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { User } from '@prisma/client'
@@ -58,7 +60,6 @@ function Index() {
   const clearCopyNotification = () => {
     setTimeout(() => setShowSuccessCopyAddress(false), 3000)
   }
-
   return (
     <div className='ml-16'>
       <Notification
@@ -72,46 +73,39 @@ function Index() {
           )} copied to clipboard`,
         }}
       />
-      <div className='mx-auto max-w-7xl py-6 sm:px-6 lg:px-8'>
-        <div className='px-4 py-6 sm:px-0'>
-          <h1 className='text-sm font-semibold uppercase'>
-            Account information
-          </h1>
-          <p className='text-lg font-semibold'>{loaderData.username}</p>
-          <div className='flex h-24 w-72 justify-evenly rounded-lg border bg-white shadow-sm'>
-            <div className='mx-2 flex flex-col items-center justify-center'>
-              <p className='text-sm uppercase'>
-                <BookOpenIcon className='mx-1 inline' width={20} />
-                Eth Address
-              </p>
-              <p className='font-semibold'>
-                {formatEthAddress(loaderData.publicAddress)}
-              </p>
-            </div>
-            <div className='mx-2 flex items-center justify-center'>
-              <button
-                onClick={() => {
-                  navigator.clipboard
-                    .writeText(loaderData.publicAddress)
-                    .then(() => setShowSuccessCopyAddress(true))
-                    .finally(clearCopyNotification)
-                }}
-                className='flex w-16 rounded-lg border-2 border-black bg-gray-50 px-2 py-3 text-xs uppercase'>
-                Copy
-                <ClipboardIcon width={20} />
-              </button>
-            </div>
+      <div className='mx-auto mt-10 max-w-7xl p-6'>
+        {/* TODO: This blockie is giving a warning (componenWillUpdate) */}
+        <Blockies
+          size={10}
+          scale={10}
+          seed={loaderData.publicAddress}
+          className='rounded-lg bg-white p-1 shadow-sm'
+        />
+
+        <p className='mt-3 text-3xl font-semibold'>{loaderData.username}</p>
+        <div className='mt-1 flex'>
+          <div className='flex rounded-md border-2 border-white bg-white'>
+            <button
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(loaderData.publicAddress)
+                  .then(() => setShowSuccessCopyAddress(true))
+                  .finally(clearCopyNotification)
+              }}
+              className='flex items-center px-3 py-2 text-sm font-semibold uppercase hover:opacity-60'>
+              <img src='/ethLogo.png' alt='eth logo' className='mr-2 h-4 w-2' />
+              {formatEthAddress(loaderData.publicAddress)}
+            </button>
+            <button
+              className='rounded-r-md bg-gray-100 px-3 py-2 text-sm font-semibold hover:brightness-95'
+              onClick={() => setOpen(true)}>
+              Retrieve Private Key
+            </button>
           </div>
-          <p className='inline'>Retrieve Private Key:</p>
-          <button
-            onClick={() => setOpen(true)}
-            className='ml-2 rounded-lg border border-black p-1'>
-            Click Me
-          </button>
-          {actionData && actionData.privateKey && (
-            <p>Private Key: {actionData.privateKey}</p>
-          )}
         </div>
+        {actionData && actionData.privateKey && (
+          <p>Private Key: {actionData.privateKey}</p>
+        )}
       </div>
       <Transition.Root show={open} as={Fragment}>
         <Dialog as='div' className='relative z-10' onClose={setOpen}>
@@ -138,10 +132,10 @@ function Index() {
                 leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'>
                 <Dialog.Panel className='relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6'>
                   <div>
-                    <div className='mt-3 text-center sm:mt-5'>
+                    <div className='mt-3 text-left sm:mt-5'>
                       <Dialog.Title
                         as='h3'
-                        className='text-lg font-medium leading-6 text-gray-900'>
+                        className='text-center text-lg font-medium leading-6 text-gray-900'>
                         Provide Your Credentials
                       </Dialog.Title>
                       <form
@@ -152,7 +146,7 @@ function Index() {
                           <label
                             htmlFor='username'
                             className='block text-sm font-medium text-gray-700'>
-                            Username:
+                            Username
                           </label>
                           <div className='mt-1'>
                             <input
@@ -171,7 +165,7 @@ function Index() {
                           <label
                             htmlFor='password'
                             className='block text-sm font-medium text-gray-700'>
-                            Password:
+                            Password
                           </label>
                           <div className='mt-1'>
                             <input
