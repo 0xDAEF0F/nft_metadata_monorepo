@@ -5,6 +5,7 @@ import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { Collection } from '@prisma/client'
 import type { ZodIssue } from 'zod'
+import { NetworkIcon } from '~/components/icons/NetworkIcon'
 
 export const action: ActionFunction = async ({ request }) => {
   const jwt = await requireJwt(request)
@@ -75,11 +76,14 @@ export default function Collections() {
               <h5 className='mb-2 text-xl font-bold tracking-tight text-gray-900'>
                 {item.name}
               </h5>
-
-              <p className='font-normal text-gray-700 dark:text-gray-400'>
-                {item.standard}
-              </p>
-              <p className='text-xs lowercase'>{item.network}</p>
+              <div className='flex h-20'>
+                <p className='font-normal text-gray-700 dark:text-gray-400'>
+                  {item.standard}
+                </p>
+                <div className='ml-1'>
+                  <NetworkIcon name={item.network} />
+                </div>
+              </div>
               {item.contractAddress && (
                 <p className='mt-1 text-xs uppercase'>deployed</p>
               )}
