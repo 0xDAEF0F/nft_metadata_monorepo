@@ -1,4 +1,3 @@
-import { NftAttribute } from '../popovers/NftAttribute'
 import { TableImageThumbnail } from '../popovers/NftImage'
 import type { Nft as NftPrisma } from '@prisma/client'
 
@@ -58,14 +57,19 @@ export function NftTable({ nfts }: { nfts: Nft[] }) {
                         <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
                           {nft.tokenId}
                         </td>
-                        <td className='whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
+                        <td className='flex whitespace-nowrap px-3 py-4 text-sm text-gray-500'>
                           {nft.attributes?.map((attr, idx) => {
                             return (
-                              <NftAttribute
+                              <span
                                 key={idx}
-                                trait_type={attr.trait_type}
-                                value={attr.value}
-                              />
+                                className='mx-1 whitespace-nowrap rounded-lg bg-purple-100 px-2.5 py-0.5'>
+                                <span className='text-xs text-purple-600'>
+                                  {attr.trait_type}
+                                </span>
+                                <div className='text-sm text-purple-900'>
+                                  {attr.value}
+                                </div>
+                              </span>
                             )
                           })}
                         </td>

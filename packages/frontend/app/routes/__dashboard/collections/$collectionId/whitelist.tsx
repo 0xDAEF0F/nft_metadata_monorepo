@@ -67,7 +67,7 @@ export default function Whitelist() {
   console.log(actionData)
 
   return (
-    <div className='m-8 w-1/2 rounded-lg border border-gray-200 bg-white p-3 shadow-sm'>
+    <div className='m-8 max-w-sm rounded-lg border border-gray-200 bg-white p-3 shadow-sm'>
       <form action={`/collections/${collectionId}/whitelist`} method='post'>
         <label
           className='mb-2 block text-sm font-medium text-gray-900 dark:text-white'
@@ -77,23 +77,27 @@ export default function Whitelist() {
         <div className='flex'>
           <input
             name='address'
+            placeholder='0x...'
             type='text'
             id='address'
-            className='rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-none'
+            className='w-full rounded-l-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-none'
           />
           <button
-            className='items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+            className='items-center rounded-r-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
             name='intent'
             value='add'
             type='submit'>
             Add
           </button>
         </div>
+        {actionData && (
+          <p className='text-sm text-red-500'>{actionData.message}</p>
+        )}
         {loaderData &&
           loaderData.map((addr) => (
             <div
               key={addr}
-              className='relative my-1 w-32 rounded-lg border py-1.5 pl-1 shadow-sm'>
+              className='my-1 flex w-32 rounded-lg border py-1.5 pl-1 shadow-sm'>
               <p className='text-sm font-semibold text-gray-600'>
                 {formatEthAddress(addr)}
               </p>
@@ -108,7 +112,7 @@ export default function Whitelist() {
                 name='intent'
                 value='remove'
                 type='submit'
-                className='absolute top-0 right-0 cursor-pointer text-red-700'>
+                className='cursor-pointer text-red-700'>
                 <XMarkIcon width={20} />
               </button>
             </div>

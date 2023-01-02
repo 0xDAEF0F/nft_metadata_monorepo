@@ -104,11 +104,11 @@ export default function Index() {
 
   return (
     <>
-      <div className='my-5 justify-center'>
-        <div className='ml-5 flex'>
+      <div className='my-5'>
+        <div className='flex flex-wrap'>
           <EditCollection collection={loaderData.collection} />
           {!loaderData.collection.contractAddress && (
-            <div className='ml-5 h-fit w-1/3 rounded-lg bg-white p-6 shadow-sm'>
+            <div className='ml-5 h-fit min-w-[18rem] rounded-lg bg-white p-6 shadow-md'>
               <p className='block text-sm font-medium text-gray-700'>
                 Deploy Collection
               </p>

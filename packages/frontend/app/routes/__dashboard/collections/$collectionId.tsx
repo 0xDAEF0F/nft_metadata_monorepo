@@ -7,7 +7,9 @@ export default function Collection() {
 
   return (
     <>
-      <nav className='-mb-px flex h-16 space-x-8 border-b' aria-label='Tabs'>
+      <nav
+        className='-mb-px flex h-16 space-x-8 border-b pl-8'
+        aria-label='Tabs'>
         <Link
           to={`/collections/${params.collectionId}`}
           className={cx(
