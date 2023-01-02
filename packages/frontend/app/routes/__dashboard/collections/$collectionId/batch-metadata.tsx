@@ -30,6 +30,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   )
 
   const data = await res.json()
+
   return json(data)
 }
 
@@ -41,7 +42,7 @@ export default function BatchMetadata() {
 
   return (
     <>
-      <div className='m-8 w-1/2 rounded-lg border border-gray-200 bg-white p-3 shadow-sm'>
+      <div className='m-8  max-w-sm rounded-lg border border-gray-200 bg-white p-3 shadow-sm'>
         <form
           action={`/collections/${collectionId}/batch-metadata`}
           method='post'
@@ -64,11 +65,7 @@ export default function BatchMetadata() {
               Submit
             </button>
             {actionData && (
-              <div>
-                <p className='text-sm text-red-500'>
-                  {actionData.message || 'Something went wrong'}
-                </p>
-              </div>
+              <p className='text-sm text-red-500'>{actionData.message}</p>
             )}
           </div>
         </form>
