@@ -1,9 +1,10 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { Form, useActionData } from '@remix-run/react'
 import {
   LockClosedIcon,
   ClipboardDocumentListIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline'
 import cx from 'classnames'
 import { formatEthAddress } from 'eth-address'
@@ -54,7 +55,7 @@ export function EjectPrivateKey({
   )
 }
 
-// if error there username or password is incorrect
+// TODO: Implement error transitions fields
 function ComponentA({ error }: { error: boolean }) {
   console.log({ error })
   return (
@@ -123,6 +124,12 @@ function ComponentA({ error }: { error: boolean }) {
 
 function ComponentB() {
   const actionData = useActionData()
+  const [hasCopiedPrivateKey, setHasCopiedPrivateKey] = useState<boolean>(false)
+
+  const copyPkToCb = async () => {
+    await navigator.clipboard.writeText(actionData.privateKey)
+    setHasCopiedPrivateKey(true)
+  }
 
   return (
     <>
@@ -138,22 +145,27 @@ function ComponentB() {
         </Dialog.Title>
         <div className='mx-auto w-11/12 space-y-2'>
           <p className='text-center text-sm'>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum ut
-            provident esse repellendus, omnis officiis illum voluptates sint
-            eaque eveniet, sed iusto tempore quae dolore vel excepturi. Iste,
-            voluptates porro.
+            Remember: we don't store any of your private keys, we only derive it
+            from the password you set when creating your account. Thus, if you
+            forget your password, your account will render <b>useless</b>.
           </p>
           <div className='mt-1 flex h-9 items-center justify-around rounded-sm border border-gray-200'>
             <p className='text-sm'>
               {formatEthAddress(actionData.publicAddress)}
             </p>
-            <ClipboardDocumentListIcon
-              className='cursor-pointer'
-              onClick={() => {
-                navigator.clipboard.writeText(actionData.privateKey)
-              }}
-              width={24}
-            />
+            {hasCopiedPrivateKey ? (
+              <CheckCircleIcon
+                className='cursor-pointer'
+                width={24}
+                onClick={copyPkToCb}
+              />
+            ) : (
+              <ClipboardDocumentListIcon
+                className='cursor-pointer'
+                onClick={copyPkToCb}
+                width={24}
+              />
+            )}
           </div>
         </div>
       </div>
