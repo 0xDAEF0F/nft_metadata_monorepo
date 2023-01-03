@@ -15,6 +15,7 @@ export class CollectionService {
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: +cursor } : undefined,
       orderBy: { id: sort },
+      include: { Nft: { take: 1, select: { image: true } } },
     })
   }
 
