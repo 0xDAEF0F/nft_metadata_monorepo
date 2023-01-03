@@ -4,6 +4,7 @@ import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData } from '@remix-run/react'
 import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import { formatEthAddress } from 'eth-address'
+import { Tooltip } from 'flowbite-react'
 
 import { Notification } from '~/components/popovers/Notification'
 import Blockies from 'react-blockies'
@@ -62,13 +63,13 @@ function Index() {
   const [open, setOpen] = useState(
     actionData && actionData?.formError ? true : false,
   )
-  const [showBalance, setShowBalance] = useState(true)
+  const [showBalance, setShowBalance] = useState(false)
   const [showSuccessCopyAddress, setShowSuccessCopyAddress] = useState(false)
 
   const clearCopyNotification = () => {
     setTimeout(() => setShowSuccessCopyAddress(false), 3000)
   }
-  console.log(balances)
+
   return (
     <div className='ml-16'>
       <Notification
@@ -93,11 +94,13 @@ function Index() {
 
         <div className='mt-3 flex items-center'>
           <p className='text-3xl font-semibold'>{data.username}</p>
-          <button
-            onClick={() => setShowBalance(true)}
-            className='ml-2 mt-1 rounded-md border-2 border-white hover:bg-white'>
-            <WalletIcon color='black' width={28} height={28} />
-          </button>
+          <Tooltip arrow={false} content='Balances'>
+            <button
+              onClick={() => setShowBalance(true)}
+              className='ml-2 mt-1 rounded-md border-2 border-white hover:bg-white'>
+              <WalletIcon color='black' width={28} height={28} />
+            </button>
+          </Tooltip>
         </div>
         <div className='mt-2 flex items-center justify-between'>
           <div className='flex rounded-md border-2 border-white bg-white'>
@@ -112,6 +115,7 @@ function Index() {
               <img src='/ethLogo.png' alt='eth logo' className='mr-2 h-4 w-2' />
               {formatEthAddress(data.publicAddress)}
             </button>
+
             <button
               className='rounded-r-md bg-gray-100 px-3 py-2 text-sm font-semibold hover:brightness-95'
               onClick={() => setOpen(true)}>
@@ -242,7 +246,7 @@ function Index() {
                 leaveFrom='opacity-100 translate-x-0'
                 leaveTo='opacity-0 translate-x-20'>
                 <Dialog.Panel className='relative h-full w-full max-w-sm transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:p-6'>
-                  <div className='mb-5 flex items-center justify-between border-b pb-5'>
+                  <div className='mb-5 flex items-center justify-between'>
                     <div className='flex items-center'>
                       <Blockies
                         size={10}
@@ -257,7 +261,7 @@ function Index() {
                       </p>
                     </div>
                   </div>
-                  <div className='rounded-md border'>
+                  <div className='mb-5 rounded-md border'>
                     <p className='mt-4 text-center text-lg font-bold tracking-tight'>
                       Balances
                     </p>
