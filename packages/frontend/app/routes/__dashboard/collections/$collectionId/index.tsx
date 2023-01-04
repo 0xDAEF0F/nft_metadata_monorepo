@@ -1,12 +1,16 @@
 import { json, redirect } from '@remix-run/node'
-import { useActionData, useLoaderData, useParams } from '@remix-run/react'
-import { fetchWithJwt, requireJwt } from '~/lib/helpers'
+import { useLoaderData, useParams } from '@remix-run/react'
+import {
+  fetchWithJwt,
+  parseClientZodFormErrors,
+  requireJwt,
+} from '~/lib/helpers'
 import { EditCollection } from '~/components/forms/EditCollection'
 import { Dialog, Transition } from '@headlessui/react'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
-import type { Collection } from '@prisma/client'
 import { useState, Fragment } from 'react'
 import cx from 'classnames'
+import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import type { Collection } from '@prisma/client'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const jwt = await requireJwt(request)
@@ -45,8 +49,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     )
     if (deleteResponse.ok) return redirect('/collections')
 
-    const data = deleteResponse.json()
-    return json(data)
+    return json(parseClientZodFormErrors(await deleteResponse.json()))
   }
 
   if (intent === 'update') {
@@ -69,7 +72,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       return redirect(`/collections/${params.collectionId}`)
 
     const updateData = await updateResponse.json()
-    return json(updateData)
+    return json(parseClientZodFormErrors(updateData))
   }
 
   if (intent === 'deploy') {
@@ -88,19 +91,17 @@ export const action: ActionFunction = async ({ request, params }) => {
       },
     )
 
-    const deployData = await deployResponse.json()
+    if (deployResponse.ok)
+      return redirect(`/collections/${params.collectionId}`)
 
-    return json(deployData)
+    return json(parseClientZodFormErrors(await deployResponse.json()))
   }
 }
 
 export default function Index() {
   const params = useParams()
   const loaderData = useLoaderData<{ collection: Collection }>()
-  const actionData = useActionData()
   const [openCredentialsModal, setOpenCredentialsModal] = useState(false)
-
-  console.log({ actionData, loaderData })
 
   return (
     <>

@@ -4,7 +4,7 @@ import { EmptyCollectionCard } from '~/components/cards/EmptyCollectionCard'
 import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { Collection } from '@prisma/client'
-import type { ZodIssue } from 'zod'
+import type { ZodIssue } from 'nestjs-zod/frontend'
 import { NetworkIcon } from '~/components/icons/NetworkIcon'
 import { RandomNftImage } from '~/components/icons/RandomNftImage'
 

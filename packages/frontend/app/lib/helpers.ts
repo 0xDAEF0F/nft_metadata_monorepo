@@ -1,9 +1,16 @@
 import { createCookie, redirect } from '@remix-run/node'
+import type { ZodIssue } from 'nestjs-zod/frontend'
 
 export type BadRequestException = {
   statusCode: 400
   message: string
   error: 'Bad Request'
+}
+
+export function parseClientZodFormErrors(exception: { errors: ZodIssue[] }) {
+  return exception.errors.map((issue) => {
+    return [issue.path[0], issue.message] as const
+  })
 }
 
 export async function requireJwt(request: Request) {

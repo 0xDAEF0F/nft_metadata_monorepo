@@ -191,7 +191,7 @@ function Index() {
                           </div>
                         </div>
                         <p className='text-center font-bold'>
-                          {balance[1].formatted}
+                          {Math.floor(+balance[1].formatted * 100) / 100}
                         </p>
                       </div>
                     ))}

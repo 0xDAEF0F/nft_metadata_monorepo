@@ -1,7 +1,9 @@
 import type { Collection } from '@prisma/client'
-import { useParams } from '@remix-run/react'
+import { useActionData, useParams } from '@remix-run/react'
 import { useState } from 'react'
 import { DeleteConfirmation } from '../modals/DeleteConfirmation'
+import cx from 'classnames'
+import type { parseClientZodFormErrors } from '~/lib/helpers'
 
 export function EditCollection({
   collection,
@@ -9,7 +11,11 @@ export function EditCollection({
   collection: Omit<Collection, 'updatedAt' | 'createdAt'>
 }) {
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
+  const actionData = useActionData<
+    undefined | ReturnType<typeof parseClientZodFormErrors>
+  >()
   const params = useParams()
+
   return (
     <>
       <form
@@ -29,7 +35,12 @@ export function EditCollection({
               name='name'
               id='name'
               defaultValue={collection.name}
-              className='block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+              className={cx(
+                actionData && actionData.findIndex(([k]) => k === 'name') !== -1
+                  ? 'border-red-600'
+                  : 'border-gray-300',
+                'block w-full rounded-md border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+              )}
               placeholder='CryptoPunks'
             />
           </div>
@@ -45,7 +56,10 @@ export function EditCollection({
             rows={3}
             name='description'
             id='description'
-            className='block w-full rounded-md border border-gray-300 p-1 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
+            className={cx(
+              false ? 'border-red-600' : 'border-gray-300',
+              'block w-full rounded-md border p-1 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+            )}
             defaultValue={collection.description ? collection.description : ''}
           />
         </div>
@@ -86,7 +100,13 @@ export function EditCollection({
               type='text'
               name='company-website'
               id='company-website'
-              className='block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+              className={cx(
+                actionData &&
+                  actionData.findIndex(([k]) => k === 'externalUrl') !== -1
+                  ? 'border-red-600'
+                  : 'border-gray-300',
+                'block w-full min-w-0 flex-1 rounded-none rounded-r-md px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+              )}
               defaultValue={
                 collection.externalUrl ? collection.externalUrl : ''
               }
