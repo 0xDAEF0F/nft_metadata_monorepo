@@ -45,8 +45,13 @@ export class CollectionController {
   ) {}
 
   @Get('getMany')
-  getManyCollections(@User('id') userId, @Query() query: QueryDto) {
-    return this.collectionService.getMany(userId, query)
+  async getManyCollections(@User('id') userId, @Query() query: QueryDto) {
+    const colls = await this.collectionService.getMany(userId, query)
+    return colls.map((coll) => {
+      const { Nft, ...rest } = coll
+      if (Nft.length === 0) return { ...rest, randomNftImage: null }
+      return { ...rest, randomNftImage: Nft[0].image }
+    })
   }
 
   @Get(':collectionId')

@@ -1,7 +1,7 @@
 import { redirect, json, fetch, createCookie } from '@remix-run/node'
 import { Link, useActionData } from '@remix-run/react'
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
-import type { ZodIssue } from 'zod'
+import type { ZodIssue } from 'nestjs-zod/frontend'
 
 type ActionData = {
   formError?: string

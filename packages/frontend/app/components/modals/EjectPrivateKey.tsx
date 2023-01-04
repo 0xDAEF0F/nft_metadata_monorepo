@@ -6,8 +6,8 @@ import {
   ClipboardDocumentListIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline'
-import cx from 'classnames'
 import { formatEthAddress } from 'eth-address'
+import cx from 'classnames'
 
 export function EjectPrivateKey({
   show,
@@ -55,9 +55,7 @@ export function EjectPrivateKey({
   )
 }
 
-// TODO: Implement error transitions fields
 function ComponentA({ error }: { error: boolean }) {
-  console.log({ error })
   return (
     <>
       <Steps
@@ -76,7 +74,10 @@ function ComponentA({ error }: { error: boolean }) {
           <div>
             <label
               htmlFor='username'
-              className='block text-sm font-medium text-gray-700'>
+              className={cx(
+                error ? '' : '',
+                'block text-sm font-medium text-gray-700',
+              )}>
               Username
             </label>
             <div className='mt-1'>
@@ -85,8 +86,9 @@ function ComponentA({ error }: { error: boolean }) {
                 name='username'
                 id='username'
                 className={cx(
-                  'border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500',
-                  'block w-full rounded-md p-1 shadow-sm sm:text-sm',
+                  error ? 'border-red-600' : 'border-gray-300',
+                  'border focus:border-indigo-500 focus:ring-indigo-500',
+                  'block w-full rounded-md p-2 shadow-sm sm:text-sm',
                 )}
                 placeholder='JohnDoe'
               />
@@ -104,8 +106,9 @@ function ComponentA({ error }: { error: boolean }) {
                 name='password'
                 id='password'
                 className={cx(
-                  'border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500',
-                  'block w-full rounded-md p-1 shadow-sm sm:text-sm',
+                  error ? 'border-red-600' : 'border-gray-300',
+                  'border focus:border-indigo-500 focus:ring-indigo-500',
+                  'block w-full rounded-md p-2 shadow-sm sm:text-sm',
                 )}
                 placeholder='**********'
               />

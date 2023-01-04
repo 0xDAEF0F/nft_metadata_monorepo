@@ -4,8 +4,9 @@ import { EmptyCollectionCard } from '~/components/cards/EmptyCollectionCard'
 import { fetchWithJwt, requireJwt } from '~/lib/helpers'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import type { Collection } from '@prisma/client'
-import type { ZodIssue } from 'zod'
+import type { ZodIssue } from 'nestjs-zod/frontend'
 import { NetworkIcon } from '~/components/icons/NetworkIcon'
+import { RandomNftImage } from '~/components/icons/RandomNftImage'
 
 export const action: ActionFunction = async ({ request }) => {
   const jwt = await requireJwt(request)
@@ -50,14 +51,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   if (!res.ok) return redirect('/login')
 
-  const data: Collection[] = await res.json()
-
-  return json(data)
+  return json(await res.json())
 }
 
 export default function Collections() {
-  const loaderData = useLoaderData<Collection[]>()
-  console.log(loaderData)
+  const loaderData =
+    useLoaderData<Array<Collection & { randomNftImage: string | null }>>()
+
   return (
     <div className='mx-auto mt-10 max-w-7xl p-6'>
       <div className='mb-2 flex items-center justify-between border-b pb-2'>
@@ -73,6 +73,12 @@ export default function Collections() {
         {loaderData.map((item) => (
           <Link key={item.id} to={'' + item.id}>
             <div className='m-3 rounded-lg border border-gray-200 bg-white p-6 shadow-md hover:bg-gray-100'>
+              <RandomNftImage
+                collectionName={item.name}
+                uri={item.randomNftImage}
+                nftId={item.id}
+                key={item.id}
+              />
               <h5 className='mb-2 text-xl font-bold tracking-tight text-gray-900'>
                 {item.name}
               </h5>
