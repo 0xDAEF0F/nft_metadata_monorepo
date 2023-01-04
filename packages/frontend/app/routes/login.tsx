@@ -1,5 +1,5 @@
 import { redirect, json, fetch, createCookie } from '@remix-run/node'
-import { Link, useActionData } from '@remix-run/react'
+import { Form, Link, useActionData } from '@remix-run/react'
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -48,9 +48,8 @@ export default function Login() {
         <h1 className='text-center text-2xl font-bold text-indigo-600 sm:text-3xl'>
           Welcome To Reliks
         </h1>
-        <form
+        <Form
           method='post'
-          action='/login'
           className='mt-6 mb-0 space-y-4 rounded-lg p-8 shadow-2xl'>
           <div>
             <p className='text-lg font-medium'>Log in</p>
@@ -145,7 +144,7 @@ export default function Login() {
               Register
             </Link>
           </p>
-        </form>
+        </Form>
       </div>
     </div>
   )
