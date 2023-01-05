@@ -4,7 +4,7 @@ import { BalanceService } from './balance.service'
 import { EthereumAddressExistsPipe } from './ethereum-address-exists.pipe'
 
 @Controller('balance')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class BalanceController {
   constructor(private balanceService: BalanceService) {}
 

@@ -1,5 +1,4 @@
-import { Fragment, useState } from 'react'
-import cx from 'classnames'
+import { useState } from 'react'
 import { json, redirect } from '@remix-run/node'
 import { useLoaderData, useActionData } from '@remix-run/react'
 import { fetchWithJwt, requireJwt } from '~/lib/helpers'
@@ -9,21 +8,16 @@ import { Notification } from '~/components/popovers/Notification'
 import Blockies from 'react-blockies'
 import { EjectPrivateKey } from '~/components/modals/EjectPrivateKey'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
-import type { Network, User } from '@prisma/client'
+import type { User } from '@prisma/client'
 import { WalletIcon } from '@heroicons/react/24/outline'
-import { NetworkIcon } from '~/components/icons/NetworkIcon'
-import { Dialog, Transition } from '@headlessui/react'
+import { BalanceSidebar } from '~/components/modals/BalanceSidebar'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const jwt = await requireJwt(request)
 
   const res = await fetchWithJwt('/auth/whoami', jwt)
   if (!res.ok) return redirect('/login')
-  const data = await res.json()
-  const res2 = await fetchWithJwt(`/balance/${data.publicAddress}`, jwt)
-  const balances = await res2.json()
-
-  return json({ data, balances })
+  return json(await res.json())
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -53,15 +47,15 @@ export const action: ActionFunction = async ({ request }) => {
 type ActionData = { privateKey?: string; formError?: string }
 
 function Index() {
-  const { data, balances } = useLoaderData<{
-    data: Pick<User, 'id' | 'username' | 'publicAddress'>
-    balances: Record<Network, { formatted: string; symbol: string }>
-  }>()
-
+  const user = useLoaderData<Pick<User, 'id' | 'username' | 'publicAddress'>>()
   const actionData = useActionData<ActionData>()
-  const [showBalance, setShowBalance] = useState(false)
 
-  const [open, setOpen] = useState<boolean>(actionData ? true : false)
+  const [showBalances, setShowBalances] = useState(false)
+  const [fetchBalances, setFetchBalances] = useState(false)
+  const [showEjectPkModal, setShowEjectPKModal] = useState<boolean>(
+    actionData ? true : false,
+  )
+
   const [showSuccessCopyAddress, setShowSuccessCopyAddress] = useState(false)
 
   const clearCopyNotification = () => {
@@ -84,7 +78,7 @@ function Index() {
           type: 'success',
           header: 'Success!',
           description: `address ${formatEthAddress(
-            data.publicAddress,
+            user.publicAddress,
           )} copied to clipboard`,
         }}
       />
@@ -93,17 +87,24 @@ function Index() {
         <Blockies
           size={10}
           scale={10}
-          seed={data.publicAddress}
+          seed={user.publicAddress}
           className='rounded-lg bg-white p-1 shadow-sm'
         />
 
         <div className='mt-3 flex items-center'>
-          <p className='text-3xl font-semibold'>{data.username}</p>
+          <p className='text-3xl font-semibold'>{user.username}</p>
           <Tooltip arrow={false} content='Balances'>
             <button
-              onClick={() => setShowBalance(true)}
+              onClick={() => setShowBalances(true)}
               className='ml-2 mt-1 rounded-md border-2 border-white hover:bg-white'>
-              <WalletIcon color='black' width={28} height={28} />
+              <WalletIcon
+                onMouseEnter={() => {
+                  setFetchBalances(true)
+                }}
+                color='black'
+                width={28}
+                height={28}
+              />
             </button>
           </Tooltip>
         </div>
@@ -112,99 +113,32 @@ function Index() {
             <button
               onClick={() => {
                 navigator.clipboard
-                  .writeText(data.publicAddress)
+                  .writeText(user.publicAddress)
                   .then(() => setShowSuccessCopyAddress(true))
                   .finally(clearCopyNotification)
               }}
               className='flex items-center px-3 py-2 text-sm font-semibold uppercase hover:opacity-60'>
               <img src='/ethLogo.png' alt='eth logo' className='mr-2 h-4 w-2' />
-              {formatEthAddress(data.publicAddress)}
+              {formatEthAddress(user.publicAddress)}
             </button>
 
             <button
               className='rounded-r-md bg-gray-100 px-3 py-2 text-sm font-semibold hover:brightness-95'
-              onClick={() => setOpen(true)}>
+              onClick={() => setShowEjectPKModal(true)}>
               Retrieve Private Key
             </button>
           </div>
         </div>
       </div>
-
-      <Transition.Root show={showBalance} as={Fragment}>
-        <Dialog as='div' className='relative z-10' onClose={setShowBalance}>
-          <Transition.Child
-            as={Fragment}
-            enter='ease-out duration-300'
-            enterFrom='opacity-0'
-            enterTo='opacity-100'
-            leave='ease-in duration-200'
-            leaveFrom='opacity-100'
-            leaveTo='opacity-0'>
-            <div className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
-          </Transition.Child>
-
-          <div className='fixed inset-0 right-0 z-10 overflow-y-auto overflow-x-hidden'>
-            <div className='flex min-h-full items-end justify-end p-4 text-center sm:items-start sm:p-0'>
-              <Transition.Child
-                as={Fragment}
-                enter='ease-in duration-600'
-                enterFrom='opacity-0 translate-x-20'
-                enterTo='opacity-100 translate-x-0 '
-                leave='ease-out duration-600'
-                leaveFrom='opacity-100 translate-x-0'
-                leaveTo='opacity-0 translate-x-20'>
-                <Dialog.Panel className='relative h-full w-full max-w-sm transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:p-6'>
-                  <div className='mb-5 flex items-center justify-between'>
-                    <div className='flex items-center'>
-                      <Blockies
-                        size={10}
-                        seed={data.publicAddress}
-                        className='rounded-lg bg-white p-1 shadow-sm'
-                      />
-                      <p className='ml-2 font-semibold'>{data.username}</p>
-                    </div>
-                    <div>
-                      <p className='ml-2 text-sm font-semibold text-gray-600'>
-                        {formatEthAddress(data.publicAddress)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className='mb-5 rounded-md border'>
-                    <p className='mt-4 text-center text-lg font-bold tracking-tight'>
-                      Balances
-                    </p>
-                    {Object.entries(balances).map((balance, index) => (
-                      <div
-                        key={index}
-                        className='mx-10 flex items-center justify-between'>
-                        <div className='my-5 flex items-center'>
-                          <NetworkIcon
-                            name={balance[0].toUpperCase() as Network}
-                          />
-                          <div className='ml-2 flex flex-col'>
-                            <p className='text-sm font-normal text-gray-500'>
-                              {balance[1].symbol}
-                            </p>
-                            <p className='text-base font-semibold'>
-                              {balance[0] as Network}
-                            </p>
-                          </div>
-                        </div>
-                        <p className='text-center font-bold'>
-                          {Math.floor(+balance[1].formatted * 100) / 100}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition.Root>
+      <BalanceSidebar
+        prefetch={fetchBalances}
+        user={user}
+        onClose={setShowBalances}
+        show={showBalances}
+      />
       <EjectPrivateKey
-        show={open}
-        onClose={setOpen}
+        show={showEjectPkModal}
+        onClose={setShowEjectPKModal}
         step={calculateStep()}
         error={actionData?.formError ? true : false}
       />
