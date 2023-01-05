@@ -1,6 +1,6 @@
-import { json } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import { requireJwt } from '~/lib/helpers'
-import { useParams, useLoaderData, useSubmit, Form } from '@remix-run/react'
+import { useLoaderData, useSubmit, Form } from '@remix-run/react'
 import { fetchWithJwt } from '~/lib/helpers'
 import { NftTable } from '~/components/tables/NftTable'
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
@@ -15,34 +15,15 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
+  const collectionId = params.collectionId
   const jwt = await requireJwt(request)
+  const clonedRequest = request.clone()
+  const intent = (await clonedRequest.formData()).get('intent')
 
-  const formData = await request.formData()
-  const intent = formData.get('intent')
-
-  if (intent === 'img') {
-    const res = await fetch(
-      process.env.API_BASE_URL + `/attributes/batch/${params.collectionId}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': request.headers.get('content-type') as string,
-          Authorization: `Bearer ${jwt}`,
-        },
-        body: request.body,
-      },
-    )
-
-    const data = await res.json()
-
-    return json(data)
-  }
-
+  // ATTRIBUTE UPLOADING
   if (intent === 'csv') {
-    const jwt = await requireJwt(request)
-
     const res = await fetch(
-      process.env.API_BASE_URL + `/image/batch/${params.collectionId}`,
+      process.env.API_BASE_URL + `/attributes/batch/${collectionId}`,
       {
         method: 'POST',
         headers: {
@@ -52,13 +33,30 @@ export const action: ActionFunction = async ({ request, params }) => {
         body: request.body,
       },
     )
-    const data = await res.json()
-    return json(data)
+    if (res.ok) return redirect(`/collections/${collectionId}`)
+
+    return json(await res.json())
   }
+
+  // IMAGE UPLOADING
+  const res = await fetch(
+    process.env.API_BASE_URL + `/image/batch/${collectionId}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': request.headers.get('content-type') as string,
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: request.body,
+    },
+  )
+
+  if (res.ok) redirect(`/collections/${collectionId}`)
+
+  return json(await res.json())
 }
 
 export default function BatchMetadata() {
-  const { collectionId } = useParams()
   const loaderData = useLoaderData()
   const submit = useSubmit()
 
@@ -83,7 +81,6 @@ export default function BatchMetadata() {
             </div>
             <div className='w-full'>
               <Form
-                action={`/collections/${collectionId}/batch-metadata`}
                 method='post'
                 encType='multipart/form-data'
                 onChange={handleChange}>
@@ -117,7 +114,6 @@ export default function BatchMetadata() {
                       type='file'
                       id='img'
                     />
-                    <input type='hidden' name='intent' value='img' />
                   </div>
                 </label>
               </Form>
@@ -133,7 +129,6 @@ export default function BatchMetadata() {
             </div>
             <div className='w-full'>
               <Form
-                action={`/collections/${collectionId}/batch-metadata`}
                 method='post'
                 encType='multipart/form-data'
                 onChange={handleChange}>
